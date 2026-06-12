@@ -287,9 +287,9 @@ const R={
     "Álvaro. Con el prefijo DQ que todos conocen. Adanes y Eva. El Oráculo toma nota de que tiene experiencia previa con los jueces. Bienvenido de nuevo al ruedo."
   ],
   patri:[
-    "Patri, de Adanes y Eva. Comparte equipo con Raúl, lo cual ya requiere una medalla aparte. El Oráculo la tiene en alta estima.",
-    "¿Patri? Adanes y Eva. Aguanta a Raúl en la misma calle durante los WODs. Si sobrevive eso, sobrevive cualquier cosa que le pongan en la competi.",
-    "Patri. De Adanes y Eva. Una persona con mucho aguante demostrado, dado su equipo. El Oráculo la saluda con respeto."
+    "Mamadísima. Y además fisio, que siempre viene bien en una competi.",
+    "¿Patri? Fisio. Mamadísima. También comparte calle con Raúl en Adanes y Eva, lo cual ya requiere medalla aparte.",
+    "Patri. Fisio de profesión, mamadísima de vocación. El Oráculo la admira."
   ],
   julio:[
     "Julio, de Adanes y Eva. El cuarto jinete del equipo junto a Raúl, Patri y DQ Álvaro. Que les vaya bien. A todos. Especialmente a Julio.",
@@ -409,6 +409,54 @@ const R={
     "¿Belén? Canaria. El Oráculo le manda un saludo desde el norte con viento y lluvia. Que aprecie lo que tiene.",
     "Belén. Canaria de pura cepa. Ha dejado el buen tiempo para venir a sufrir WODs con el resto. Eso tiene mucho mérito."
   ],
+  berto:[
+    "Berto. Se marchó huyendo en bici antes de que nadie pudiera decirle nada. Velocidad sospechosa.",
+    "¿Berto? Demasiado ocupado cuidándose ese cutis perfecto que tiene. El Oráculo lo entiende, hay que priorizar.",
+    "Bertis. O está en bici huyendo de algo o está en casa con la rutina de skincare. No hay término medio."
+  ],
+  isa:[
+    "¿Quién es? No me suena... Aaaaahhh siii... espera. No, ni idea.",
+    "Isa... ¿Isa? ... ... No, nada. No me suena. O sí. Igual sí. Que no."
+  ],
+  alazne:[
+    "Tiene actualmente un bollo calentándose en el horno."
+  ],
+  cesar:[
+    "César iba a venir pero al final no. El Oráculo no se sorprende. Era de esperar.",
+    "¿César? Iba a estar aquí. De hecho todavía puede llegar. Tiene costumbre de llegar tarde. El Oráculo espera. Sin mucha fe.",
+    "César. La teoría es que viene. La práctica... el Oráculo lleva esperando un rato y de momento nada."
+  ],
+  david:[
+    "Transportes Galdós patrocina este chatbot.",
+    "¿David? Transportes Galdós, orgulloso patrocinador de este chatbot. Gracias David."
+  ],
+  edu:[
+    "El Banco Santander no ha patrocinado este chatbot... sin embargo la Caja Rural...",
+    "¿Edu? El Banco Santander declinó patrocinar este chatbot. La Caja Rural, sin embargo, estuvo muy receptiva."
+  ],
+  jexu:[
+    "Jexu. Le queremos mucho. El Oráculo lo certifica con todo su corazón bisontino.",
+    "¿Jexu? Le queremos mucho. Punto. No hay más que decir. Un abrazo enorme.",
+    "Jexu. Al que no quiere a Jexu es que no le conoce. Le queremos mucho."
+  ],
+  jose:[
+    "Amos jose.",
+    "¿Jose? Amos jose.",
+    "Jose. Amos jose, tío."
+  ],
+  mireya:[
+    "Qué mona va esta chica siempre. El Oráculo se quita el sombrero.",
+    "¿Mireya? Qué mona va siempre, en serio. Una estética impecable en todo momento. El Oráculo lo nota."
+  ],
+  pablo:[
+    "Está con la pelirroja por ahí, la última vez que lo vi.",
+    "¿Pablo? La última vez que lo vi estaba con la pelirroja. El Oráculo no pregunta más."
+  ],
+  tata:[
+    "¡ARRIBA RACING DE SANTANDER! 🟢⚪",
+    "¿Tata? ARRIBA EL RACING. El Oráculo respeta a la afición. 🟢⚪",
+    "Tata. Arriba el Racing de Santander, que ya hace falta alguien que lo diga. El Oráculo apoya."
+  ],
   gili:[
     "GILIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII",
     "¿Raúl?"
@@ -497,6 +545,17 @@ function getResponse(input){
   if(hasWord(t,'ana')&&!has(t,'analit','analiz','canaria')) return{text:rnd(R.ana)};
   if(has(t,'arriola'))                                     return{text:rnd(R.arriola)};
   if(has(t,'belen','belén'))                               return{text:rnd(R.belen)};
+  if(has(t,'berto','bertis'))                              return{text:rnd(R.berto)};
+  if(hasWord(t,'isa'))                                     return{text:rnd(R.isa)};
+  if(has(t,'alazne'))                                      return{text:rnd(R.alazne)};
+  if(has(t,'cesar','césar'))                               return{text:rnd(R.cesar)};
+  if(hasWord(t,'david'))                                   return{text:rnd(R.david)};
+  if(hasWord(t,'edu')&&!has(t,'educacion','educar'))       return{text:rnd(R.edu)};
+  if(has(t,'jexu'))                                        return{text:rnd(R.jexu)};
+  if(has(t,'jose','josé'))                                 return{text:rnd(R.jose)};
+  if(has(t,'mireya'))                                      return{text:rnd(R.mireya)};
+  if(has(t,'pablo')&&!has(t,'picasso','escobar'))          return{text:rnd(R.pablo)};
+  if(hasWord(t,'tata'))                                    return{text:rnd(R.tata)};
   if(has(t,'ruben'))                                       return{text:rnd(R.ruben)};
   if(has(t,'chiqui'))                                      return{text:rnd(R.chiqui)};
   if(has(t,'manu')&&!has(t,'manual','manuela','emmanuel')) return{text:rnd(R.manu)};
