@@ -119,6 +119,8 @@ const TEAMS={
 
 // ── WODS ───────────────────────────────────────────────────────────────────────
 const WODS={
+  1:`<div class="wod-title">🏛️ WOD 1 — PABELLÓN · Vie noche</div><div class="wod-line">El briefing de este WOD no está disponible todavía. El Oráculo lo desconoce. Aparecerá en su momento, como Jorge... o no.</div>`,
+  2:`<div class="wod-title">🏛️ WOD 2 — PABELLÓN · Vie noche</div><div class="wod-line">El briefing de este WOD tampoco está disponible todavía. El Oráculo espera. Con paciencia. No mucha, pero espera.</div>`,
   3:`<div class="wod-title">🏖️ WOD 3 — PLAYA DE CUCHÍA · Sáb mañana</div><div class="wod-line"><strong>FOR TIME · Sin time cap</strong></div><div class="wod-block"><div class="wod-block-title">TRABAJO SIMULTÁNEO:</div><div class="wod-line">🐛 1200m Worm Run — 3 atletas con el gusano</div><div class="wod-line">🏊 300m Swim — 1 atleta en el agua</div></div><div class="wod-block"><div class="wod-block-title">DESPUÉS:</div><div class="wod-line">🏃 4km Run — los 4 atletas (salen al acabar su bloque)</div></div><div class="wod-alert">⚠️ Los del gusano no corren hasta que el gusano acabe. Entran juntos a meta los 4.</div>`,
   4:`<div class="wod-title">🏛️ WOD 4 — PABELLÓN · Sáb tarde</div><div class="wod-line"><strong>INTERVALOS · TC 10:00 · MAX REPS SYNCHRO 4</strong></div><div class="wod-block"><div class="wod-block-title">Bloque 1 · 2:00 ON | 0:40 OFF</div><div class="wod-line">💥 Burpee Double Jump Over Line</div></div><div class="wod-block"><div class="wod-block-title">Bloque 2 · 2:00 ON | 0:40 OFF</div><div class="wod-line">🏋️ Overhead Squat</div></div><div class="wod-block"><div class="wod-block-title">Bloque 3 · 2:00 ON | 0:40 OFF</div><div class="wod-line">⚡ Hang Power Snatch</div></div><div class="wod-block"><div class="wod-block-title">Bloque 4 · 2:00 ON</div><div class="wod-line">🔝 Shoulder to Overhead</div></div><div class="wod-alert">RX → M: barra 50kg/DB 22.5/KB 24 · F: barra 35kg/DB 15/KB 16</div>`,
   5:`<div class="wod-title">🏛️ WOD 5 — PABELLÓN · Sáb tarde</div><div class="wod-line"><strong>4 SPRINTS INDIVIDUALES en cascada · TC 1:50 por atleta</strong></div><div class="wod-block"><div class="wod-block-title">Reps por atleta:</div><div class="wod-line">A1: 12 gimn. · 9 box jump · 6 D-ball lunge · 3×2m HSW/Lunge</div><div class="wod-line">A2: 9 gimn. · 6 box jump · 3 D-ball lunge · 12×2m HSW/Lunge</div><div class="wod-line">A3: 6 gimn. · 3 box jump · 12 D-ball lunge · 9×2m HSW/Lunge</div><div class="wod-line">A4: 3 gimn. · 12 box jump · 9 D-ball lunge · 6×2m HSW/Lunge</div></div><div class="wod-block"><div class="wod-block-title">Gimnástico:</div><div class="wod-line">RX: Ring Muscle Up + HSW · Open/Rookie: Ring Pull Up + DB OH Lunge</div></div><div class="wod-alert">D-Ball M: 50kg · F: 35kg · Cajón 76cm (Rookie F: 61cm)</div>`,
@@ -412,6 +414,7 @@ function getResponse(input){
     return{text:rnd(R.aida_tilde)};
 
   // ── PERSONAS ──
+  if(has(t,'raul')&&has(t,'vicen','vicente'))               return{text:"Raúl quería formar un equipo. El puesto actual de 'Vicen' es = 16. Justo por debajo de Lucas, en el puesto 15."};
   if(has(t,'raul'))                                        return{text:rnd(R.raul)};
   if(has(t,'aida'))                                        return{text:rnd(R.aida)};
   if(has(t,'luci')&&!hasWord(t,'lu'))                      return{text:rnd(R.luci)};
@@ -425,6 +428,7 @@ function getResponse(input){
   if(has(t,'anselmo'))                                     return{text:rnd(R.anselmo)};
   if(has(t,'jorge'))                                       return{text:rnd(R.jorge)};
   if(has(t,'angela',' angela'))                             return{text:rnd(R.angela)};
+  if(has(t,'nati','natalia'))                              return{text:"When I was... a young boy... my father... 🎸"};
   if(has(t,'ruben'))                                       return{text:rnd(R.ruben)};
   if(has(t,'chiqui'))                                      return{text:rnd(R.chiqui)};
   if(has(t,'manu')&&!has(t,'manual','manuela','emmanuel')) return{text:rnd(R.manu)};
@@ -451,7 +455,10 @@ function getResponse(input){
   if(tk) return{html:formatSchedule(TEAMS[tk])};
 
   // ── WOD número ──
-  const wn=has(t,'wod 3','wod3')?3:has(t,'wod 4','wod4')?4:has(t,'wod 5','wod5')?5:has(t,'wod 6','wod6')?6:has(t,'wod 7','wod7')?7:null;
+  if(has(t,'sabes los wod','sabes wod','todos los wod','dime los wod','cuales son los wod','los wods')){
+    return{html:Object.values(WODS).join('<hr style="border-color:#2A1608;margin:8px 0">')};
+  }
+  const wn=has(t,'wod 1','wod1')?1:has(t,'wod 2','wod2')?2:has(t,'wod 3','wod3')?3:has(t,'wod 4','wod4')?4:has(t,'wod 5','wod5')?5:has(t,'wod 6','wod6')?6:has(t,'wod 7','wod7')?7:null;
   if(wn) return{html:WODS[wn]};
 
   // ── Keywords movimientos ──
