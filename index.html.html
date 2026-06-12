@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>🦬 Oráculo del Bisonte</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{height:100%}
+body{height:100%;background:#0A0805;color:#F0E6D0;font-family:system-ui,-apple-system,sans-serif;overflow:hidden;position:fixed;width:100%;left:0;top:0}
+#app{height:100%;height:100dvh;display:flex;flex-direction:column;max-width:500px;margin:0 auto}
+header{padding:12px 16px 10px;text-align:center;border-bottom:2px solid #C4580A;background:#0A0805;flex-shrink:0}
+.bison{font-size:2.4rem;line-height:1;display:block}
+h1{font-family:'Bebas Neue',Impact,'Arial Black',sans-serif;font-size:1.8rem;letter-spacing:5px;color:#C4580A;text-shadow:0 0 28px rgba(196,88,10,.5);line-height:1;margin-top:3px}
+.tagline{font-size:.6rem;color:#5A4830;letter-spacing:2.5px;text-transform:uppercase;margin-top:3px}
+#messages{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+#messages::-webkit-scrollbar{width:3px}
+#messages::-webkit-scrollbar-thumb{background:#3A2010;border-radius:3px}
+.msg{display:flex;flex-direction:column;max-width:88%}
+.msg.user{align-self:flex-end;align-items:flex-end}
+.msg.bot{align-self:flex-start;align-items:flex-start}
+.bubble{padding:10px 14px;border-radius:14px;font-size:.86rem;line-height:1.55;word-break:break-word}
+.msg.user .bubble{background:#C4580A;color:#0A0805;font-weight:600;border-bottom-right-radius:3px}
+.msg.bot .bubble{background:#131008;border:1px solid #2A1608;border-left:3px solid #C4580A;color:#F0E6D0;border-bottom-left-radius:3px}
+.sched{margin-top:6px;display:flex;flex-direction:column;gap:4px}
+.sched-row{display:grid;grid-template-columns:auto auto 1fr;gap:4px 8px;align-items:baseline;font-size:.82rem}
+.sched-day{color:#C4580A;font-weight:700;white-space:nowrap}
+.sched-time{color:#9A8060;white-space:nowrap;font-size:.78rem}
+.sched-info{color:#D0C0A0}
+.sched-wod{color:#E8A060;font-weight:600}
+.bubble-title{font-weight:700;font-size:.92rem;color:#E8C080;margin-bottom:2px}
+.bubble-members{font-size:.78rem;color:#6A5030;margin-bottom:5px;font-style:italic}
+.bubble-footer{margin-top:8px;color:#9A8060;font-size:.82rem;font-style:italic}
+.wod-title{font-weight:700;font-size:.92rem;color:#E8C080;margin-bottom:6px}
+.wod-block{margin-top:5px;padding:6px 8px;background:#1C1208;border-radius:6px;border-left:2px solid #6A3A10}
+.wod-block-title{color:#C4580A;font-weight:700;font-size:.8rem;margin-bottom:3px}
+.wod-line{color:#C0B090;font-size:.82rem;line-height:1.5}
+.wod-alert{color:#E88040;font-weight:600;font-size:.82rem;margin-top:5px}
+.typing{display:flex;gap:5px;align-items:center;padding:12px 14px;background:#131008;border:1px solid #2A1608;border-left:3px solid #C4580A;border-radius:14px;border-bottom-left-radius:3px;align-self:flex-start;width:62px}
+.dot{width:7px;height:7px;background:#C4580A;border-radius:50%;animation:pulse 1.2s ease-in-out infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,80%,100%{transform:scale(.65);opacity:.35}40%{transform:scale(1);opacity:1}}
+#teambtns,#quickprompts{display:flex;flex-wrap:wrap;gap:6px;padding:5px 12px;flex-shrink:0}
+.tbtn{background:#161008;border:1px solid #2A1608;color:#9A7050;padding:6px 12px;border-radius:20px;font-size:.72rem;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.tbtn:hover,.tbtn:active{border-color:#C4580A;color:#C4580A;background:#1C1008}
+.qbtn{background:#161008;border:1px solid #1E1008;color:#6A5040;padding:5px 11px;border-radius:20px;font-size:.7rem;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.qbtn:hover,.qbtn:active{border-color:#C4580A;color:#C4580A;background:#1C1008}
+#inputarea{display:flex;gap:8px;padding:8px 12px max(14px,env(safe-area-inset-bottom));border-top:1px solid #1A1008;flex-shrink:0}
+#userinput{flex:1;background:#131008;border:1px solid #2A1608;border-radius:24px;padding:11px 16px;color:#F0E6D0;font-size:.86rem;font-family:inherit;outline:none;transition:border-color .15s}
+#userinput:focus{border-color:#C4580A}
+#userinput::placeholder{color:#3E2E1A}
+#sendbtn{background:#C4580A;border:none;border-radius:50%;width:44px;height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;align-self:flex-end}
+#sendbtn:hover{background:#D96510;transform:scale(1.06)}
+#sendbtn:active{transform:scale(.97)}
+#sendbtn svg{width:18px;height:18px;fill:#0A0805}
+</style>
+</head>
+<body>
+<noscript>
+  <div style="position:fixed;inset:0;background:#0A0805;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;font-family:system-ui,sans-serif;z-index:9999">
+    <div style="font-size:3rem">🦬</div>
+    <div style="color:#C4580A;font-size:1.4rem;font-weight:700;letter-spacing:3px;margin:12px 0 8px">ORÁCULO DEL BISONTE</div>
+    <div style="color:#F0E6D0;font-size:1rem;line-height:1.6;margin-bottom:24px">Este chat no funciona en el visor de archivos.<br>Tienes que abrirlo en <strong>Safari</strong>.</div>
+    <div style="color:#9A8060;font-size:.85rem;line-height:1.7">Pulsa el botón <strong style="color:#C4580A">□↑</strong> (abajo a la derecha)<br>y selecciona <strong style="color:#C4580A">"Abrir en Safari"</strong></div>
+  </div>
+</noscript>
+<div id="app">
+  <header>
+    <span class="bison">🦬</span>
+    <h1>ORÁCULO DEL BISONTE</h1>
+    <div class="tagline">Chat Oficial de Cena Probox · Jun 2026</div>
+  </header>
+  <div id="messages"></div>
+  <div id="teambtns">
+    <button class="tbtn" data-team="terneros">🐂 Terneros</button>
+    <button class="tbtn" data-team="lastsecond">⏱️ Last Second</button>
+    <button class="tbtn" data-team="cronosfit">⚡ Cronosfit</button>
+    <button class="tbtn" data-team="adanes">🍎 Adanes y Eva</button>
+    <button class="tbtn" data-team="probox">📦 Pro-Box942</button>
+  </div>
+  <div id="quickprompts">
+    <button class="qbtn" data-q="¿En qué consiste el WOD 3?">🏖️ WOD 3</button>
+    <button class="qbtn" data-q="¿En qué consiste el WOD 4?">💪 WOD 4</button>
+    <button class="qbtn" data-q="¿En qué consiste el WOD 5?">🤸 WOD 5</button>
+    <button class="qbtn" data-q="¿En qué consiste el WOD 6?">🚣 WOD 6</button>
+    <button class="qbtn" data-q="¿En qué consiste el WOD 7?">🎳 WOD 7</button>
+    <button class="qbtn" data-q="¿Quién va a ganar?">🏆 ¿Quién gana?</button>
+    <button class="qbtn" data-q="Me quiero retirar">😭 Me rindo</button>
+  </div>
+  <div id="inputarea">
+    <input id="userinput" type="text" placeholder="Pregunta algo al Oráculo..." maxlength="300"/>
+    <button id="sendbtn" onclick="send()" aria-label="Enviar">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+<script>
+// ── EQUIPOS ────────────────────────────────────────────────────────────────────
+const TEAMS={
+  terneros:{emoji:'🐂',name:'TERNEROS DEL BISONTE',
+    members:['Mario (no Macario)','Jesús','Moni','El Cuarto Misterioso 🤷'],
+    schedule:[['Vie 12','16:00-16:20','WODs 1+2','Pabellón','10'],['Sáb 13','09:06','WOD 3','Playa','2'],['Sáb 13','14:30-14:40','WOD 4','Pabellón','10'],['Sáb 13','18:15-18:23','WOD 5','Pabellón','10'],['Dom 14','09:00-09:08','WOD 6','Pabellón','2'],['Dom 14','12:45-12:53','WOD 7','Bolera','2']]},
+  lastsecond:{emoji:'⏱️',name:'LAST SECOND',
+    members:['Dafu','Vicen','Bea','Jorge (si aparece 👻)'],
+    schedule:[['Vie 12','18:03-18:23','WODs 1+2','Pabellón','1'],['Sáb 13','10:32','WOD 3','Playa','2'],['Sáb 13','15:43-15:53','WOD 4','Pabellón','1'],['Sáb 13','19:18-19:26','WOD 5','Pabellón','1'],['Dom 14','09:36-09:44','WOD 7','Bolera','1'],['Dom 14','11:15-11:23','WOD 6','Pabellón','1']]},
+  cronosfit:{emoji:'⚡',name:'CRONOSFIT TEAM',
+    members:['Lu','Gonzalo','Lucas','Cronosfit (sí, la persona)'],
+    schedule:[['Vie 12','19:15-19:35','WODs 1+2','Pabellón','8'],['Sáb 13','11:12','WOD 3','Playa','2'],['Sáb 13','16:25-16:35','WOD 4','Pabellón','8'],['Sáb 13','19:54-20:02','WOD 5','Pabellón','8'],['Dom 14','10:36-10:44','WOD 7','Bolera','1'],['Dom 14','12:15-12:23','WOD 6','Pabellón','1']]},
+  adanes:{emoji:'🍎',name:'ADANES Y EVA',
+    members:['DQ Álvaro ⚠️','Patri','Raúl','Julio'],
+    schedule:[['Vie 12','21:00-21:20','WODs 1+2','Pabellón','16'],['Sáb 13','12:06','WOD 3','Playa','2'],['Sáb 13','17:30-17:40','WOD 4','Pabellón','16'],['Sáb 13','20:51-20:59','WOD 5','Pabellón','16'],['Dom 14','12:18-12:26','WOD 7','Bolera','8'],['Dom 14','13:57-14:05','WOD 6','Pabellón','8']]},
+  probox:{emoji:'📦',name:'PRO-BOX942',
+    members:['🕵️ Clasificado','🕵️ Clasificado','🕵️ Clasificado','👻 ¿Jorge?'],
+    schedule:[['Vie 12','21:00-21:20','WODs 1+2','Pabellón','11'],['Sáb 13','12:10','WOD 3','Playa','1'],['Sáb 13','17:30-17:40','WOD 4','Pabellón','11'],['Sáb 13','20:51-20:59','WOD 5','Pabellón','11'],['Dom 14','12:18-12:26','WOD 7','Bolera','3'],['Dom 14','13:57-14:05','WOD 6','Pabellón','3']]}
+};
+
+// ── WODS ───────────────────────────────────────────────────────────────────────
+const WODS={
+  3:`<div class="wod-title">🏖️ WOD 3 — PLAYA DE CUCHÍA · Sáb mañana</div><div class="wod-line"><strong>FOR TIME · Sin time cap</strong></div><div class="wod-block"><div class="wod-block-title">TRABAJO SIMULTÁNEO:</div><div class="wod-line">🐛 1200m Worm Run — 3 atletas con el gusano</div><div class="wod-line">🏊 300m Swim — 1 atleta en el agua</div></div><div class="wod-block"><div class="wod-block-title">DESPUÉS:</div><div class="wod-line">🏃 4km Run — los 4 atletas (salen al acabar su bloque)</div></div><div class="wod-alert">⚠️ Los del gusano no corren hasta que el gusano acabe. Entran juntos a meta los 4.</div>`,
+  4:`<div class="wod-title">🏛️ WOD 4 — PABELLÓN · Sáb tarde</div><div class="wod-line"><strong>INTERVALOS · TC 10:00 · MAX REPS SYNCHRO 4</strong></div><div class="wod-block"><div class="wod-block-title">Bloque 1 · 2:00 ON | 0:40 OFF</div><div class="wod-line">💥 Burpee Double Jump Over Line</div></div><div class="wod-block"><div class="wod-block-title">Bloque 2 · 2:00 ON | 0:40 OFF</div><div class="wod-line">🏋️ Overhead Squat</div></div><div class="wod-block"><div class="wod-block-title">Bloque 3 · 2:00 ON | 0:40 OFF</div><div class="wod-line">⚡ Hang Power Snatch</div></div><div class="wod-block"><div class="wod-block-title">Bloque 4 · 2:00 ON</div><div class="wod-line">🔝 Shoulder to Overhead</div></div><div class="wod-alert">RX → M: barra 50kg/DB 22.5/KB 24 · F: barra 35kg/DB 15/KB 16</div>`,
+  5:`<div class="wod-title">🏛️ WOD 5 — PABELLÓN · Sáb tarde</div><div class="wod-line"><strong>4 SPRINTS INDIVIDUALES en cascada · TC 1:50 por atleta</strong></div><div class="wod-block"><div class="wod-block-title">Reps por atleta:</div><div class="wod-line">A1: 12 gimn. · 9 box jump · 6 D-ball lunge · 3×2m HSW/Lunge</div><div class="wod-line">A2: 9 gimn. · 6 box jump · 3 D-ball lunge · 12×2m HSW/Lunge</div><div class="wod-line">A3: 6 gimn. · 3 box jump · 12 D-ball lunge · 9×2m HSW/Lunge</div><div class="wod-line">A4: 3 gimn. · 12 box jump · 9 D-ball lunge · 6×2m HSW/Lunge</div></div><div class="wod-block"><div class="wod-block-title">Gimnástico:</div><div class="wod-line">RX: Ring Muscle Up + HSW · Open/Rookie: Ring Pull Up + DB OH Lunge</div></div><div class="wod-alert">D-Ball M: 50kg · F: 35kg · Cajón 76cm (Rookie F: 61cm)</div>`,
+  6:`<div class="wod-title">🏛️ WOD 6 — PABELLÓN · Dom mañana</div><div class="wod-line"><strong>FOR TIME · TC 8:00</strong></div><div class="wod-block"><div class="wod-block-title">4 RONDAS — cada ronda:</div><div class="wod-line">🚣 10/8 cal Row/Bike SYNCHRO 4</div><div class="wod-line">🏋️ 10 Snatches (synchro: R1→1, R2→2, R3→3, R4→4 atletas)</div></div><div class="wod-alert">⚠️ Nadie al snatch hasta que TODOS acaben calorías. RX M: 60kg · F: 40kg</div>`,
+  7:`<div class="wod-title">🎳 WOD 7 — BOLERA · Dom mañana</div><div class="wod-line"><strong>FOR TIME · TC 8:00</strong></div><div class="wod-block"><div class="wod-block-title">4 RONDAS — cada ronda:</div><div class="wod-line">🐛 25 Worm Thruster SYNCHRO 4 (2 parejas, 2 gusanos)</div><div class="wod-line">🏋️ 10 Bench Press (1 atleta por ronda, todos pasan)</div><div class="wod-line">   Otra pareja: WORM HOLD (gusano en alto)</div></div><div class="wod-alert">⚠️ Gusano al suelo durante bench = NO REP. RX M: 80kg · F: 50kg</div>`
+};
+
+// ── RESPUESTAS ────────────────────────────────────────────────────────────────
+const TAUNTS=['crack del sofá','fenómeno','figura','zoquete','campeón/a del no-rep','alma de cántaro','pringao/a'];
+const AREA_ICON={Pabellón:'🏛️',Playa:'🏖️',Bolera:'🎳'};
+const DAY_FILTER={'viernes':'Vie 12','sabado':'Sáb 13','domingo':'Dom 14'};
+
+const R={
+  raul:[
+    "¿Raúl? El hombre del 'Ah... ¿vas con TU PEÑA?'. Convierte cualquier 'no puedo esta noche' en una tragedia griega en tres actos. Premio Nobel de la victimización social. También sobrevivió al feroz ataque de Draco... que es un perro CANIJO. Lo cuenta con cara de superviviente épico.",
+    "Raúl. Famoso en dos frentes: la frase icónica 'Ah... ¿vas con TU PEÑA?' cuando declinas cualquier plan, y haber sido atacado por Draco, el Chihuahua más peligroso de Cantabria. El hombre lo narra como si hubiera luchado contra un lobo. Pura leyenda.",
+    "El Raúl nacional. Principio vital: o quedas con él, o quedas con TU PEÑA. No existe tercera opción en su universo. Y lo de Draco... pregúntale. Te lo va a contar con todo el dramatismo que merece. Un cordial salido.",
+    "¿Raúl? El Oráculo le respeta. No por los WODs, sino por la capacidad de hacerte sentir culpable por no quedar con él. 'Ah... ¿vas con TU PEÑA?' — arte conversacional elevado a su máxima expresión. Menudo fenómeno.",
+    "Raúl. El del 'vas con TU PEÑA'. El del perro canijo Draco que le mordió y que ha pasado a la historia del grupo como si fuera el ataque del tiburón de Jaws. El Oráculo le quiere mucho. Salidos cordiales."
+  ],
+  aida_tilde:[
+    "SE ESCRIBE SIN TILDE. A-I-D-A. Sin acento encima de la i. El Oráculo no admite faltas de ortografía. Corrígete y repite la pregunta con dignidad.",
+    "¡SE ESCRIBE SIN TILDE, criatura! Aida. Sin tildecita. ¿Cómo vas a ir a una competi si no sabes ni escribir el nombre de tus compañeros? Un salido.",
+    "Oye. AIDA. Sin tilde. La tilde es para los que no saben escribir su nombre. Inténtalo otra vez y esta vez hazlo bien. El Oráculo espera."
+  ],
+  aida:[
+    "Aida... la mejor persona del mundo. Siempre amable, siempre positiva, nunca ha hecho una mala acción en su vida. Un ángel en la tierra. Totalmente. Sin ningún tipo de ironía. Ninguna en absoluto.",
+    "¿Aida? Una joya humana absoluta. Perfecta en todo. Jamás ha molestado a nadie, jamás ha dicho nada fuera de lugar. El Oráculo lo certifica con total seriedad (guiño, guiño).",
+    "Aida. La más buena. La más noble. La más... (el Oráculo se toma un momento para no reírse). Sí. Exactamente eso. Sin sarcasmo alguno de nada.",
+    "Aida. Una persona sin defectos conocidos. El Oráculo asiente convencido. (El Oráculo también miente a veces.)",
+    "¿Aida? La nobleza hecha persona. Generosa, bondadosa, sin una sola mancha en su historial. Eso es lo que diría alguien que le tiene miedo. El Oráculo no le tiene miedo. Mucho."
+  ],
+  luci:[
+    "Luci. La mujer más paciente del planeta. Convive con Raúl, aguanta el 'Ah... ¿vas con TU PEÑA?' en directo y encima viene a competir. La ciencia no tiene explicación. Merece un spa, una medalla y la beatificación.",
+    "¿Luci? La patrona de la paciencia infinita. Casada con el hombre del 'vas con TU PEÑA', madre de Victoria, y aun así sigue en pie sonriendo. Un ejemplo para la humanidad.",
+    "Luci. La ONG más pequeña del mundo: una sola persona aguantando a Raúl. Sin subvenciones, sin vacaciones. Y encima compite este fin de semana. Campeona moral del evento antes de empezar.",
+    "¿Luci? El Oráculo la respeta profundamente. No hay WOD en esta competi más duro que su día a día. Y ella lo hace con una sonrisa. Extraordinario."
+  ],
+  lu_cronosfit:[
+    "Lu, del Cronosfit Team. Ojo: Lu NO es Luci. Lu es Lu. Luci es Luci. Son dos personas distintas y el Oráculo las distingue perfectamente. Lu compite con Gonzalo, Lucas y el enigmático Cronosfit.",
+    "¿Lu? Del Cronosfit Team. No confundir con Luci (la de Raúl). Lu es Lu. Persona diferente, mismo nombre, zero confusión para el Oráculo. Un crack en la pista.",
+    "Lu de Cronosfit. Que conste que Lu ≠ Luci. El Oráculo ha recibido esta aclaración y la respeta. Diferente persona, mismo nombre... qué lío de competi."
+  ],
+  victoria:[
+    "¡Victoria! 🍼 La bisontita más nueva y con más glamour de toda la competi. Recién llegada al mundo y ya mejor atleta potencial que varios adultos de aquí. Si hereda la paciencia de Luci va a estar bien. Si aprende lo de 'vas con TU PEÑA'... que Dios nos ayude. ❤️",
+    "La pequeña Victoria. La más importante de toda esta competi sin haber hecho ni un solo WOD. El Oráculo le augura un futuro brillante. Eso sí, que se aleje de Draco. Por si acaso. 🍼❤️",
+    "Victoria, la bebé. Sin WODs, sin nervios, sin time cap. Ya lleva ventaja sobre todos los que están aquí. El Oráculo la saluda con todo el respeto que merece. 🍼",
+    "¿Victoria? La hija de Raúl y Luci. El Oráculo confía en que herede el 100% de Luci y el 0% del 'vas con TU PEÑA'. La naturaleza a veces es justa. ❤️"
+  ],
+  mario_ok:[
+    "Mario, de los Terneros del Bisonte. Buen tipo, buen atleta. Una sola advertencia: llámale Mario. No Macario. M-A-R-I-O. El Oráculo ya te ha avisado.",
+    "¿Mario? Terneros del Bisonte. Un crack. Y recuerda: MARIO. No Macario. El que lo llame Macario que se atenga a las consecuencias. Aviso dado.",
+    "Mario. De los Terneros. El Oráculo solo pide una cosa: respeta el nombre. MARIO. Sin variaciones, sin creatividad, sin Macario. Gracias y un salido."
+  ],
+  mario_mal:[
+    "OJO OJO OJO. Se llama MARIO. No Macario. M-A-R-I-O. Si se lo dices así a él en persona, el Oráculo no se hace responsable. Corrígete.",
+    "MARIO. El nombre es MARIO. Macario es otra persona completamente diferente. Repite: MA-RIO. Así. Bien. Ahora ya puedes hablar de él sin represalias.",
+    "OTRA VEZ MACARIO. ¿Cuántas veces tiene que decírtelo el Oráculo? M-A-R-I-O. Como el fontanero. Sin champiñones. Sin Macario. Venga.",
+    "¿Macario? MACARIO no existe aquí. Aquí hay un MARIO. Solo un MARIO. El Oráculo te mira con decepción."
+  ],
+  elsa:[
+    "Elsa, la novia de Vicente. Una santa con paciencia infinita. El Oráculo cree que cualquier día llega el temido 'tenemos que hablar'... pero de momento sigue ahí, que ya dice mucho. Muy buena chica. Un salido.",
+    "¿Elsa? La novia de Vicente. Merece una medalla de resistencia de categoría RX. Buena gente, muy buena gente. El Oráculo le desea lo mejor. Que incluye paciencia. Mucha paciencia.",
+    "Elsa. La novia de Vicente. El Oráculo le tiene un aprecio especial porque aguanta lo que aguanta y encima sigue siendo buena persona. Eso tiene mucho mérito. El Oráculo lleva la cuenta.",
+    "¿Elsa? Buena chica, de las mejores. El Oráculo solo espera que un día no le escriba a Vicen el famoso 'necesitamos hablar'. Aunque el Oráculo sabe que ese día llegará. Salidos cordiales."
+  ],
+  eli:[
+    "Eli, la coach del box. Está MUY fuerte. No, en serio, MUY fuerte. Si te corrige la técnica, te la corriges sin rechistar y das las gracias.",
+    "¿Eli? La coach. Está tan fuerte que hace que el resto parezcamos que entrenamos en un gimnasio de barrio. Si dice que la rep no vale, no vale. El Oráculo la apoya al 100%.",
+    "Eli. La coach oficial. El Oráculo la consulta antes de opinar sobre técnica de ningún movimiento. Está MUY fuerte y sabe más que el Oráculo. Y eso es mucho decir.",
+    "¿Eli? Una palabra: fuerte. Dos palabras: muy fuerte. Si te mira mientras haces una rep y no dice nada... o lo estás haciendo bien o lo estás haciendo tan mal que no sabe por dónde empezar."
+  ],
+  ivan:[
+    "¿Iván el argentino? Ese que antes de que levantes la barra ya te pregunta '¿Seguro que vas a mover ese peso?'. El coach más intimidante y más efectivo del lugar, che. Te hace sentir un pelotudo y un crack al mismo tiempo.",
+    "Iván. Argentino. Coach. Su frase favorita para cuando alguien se pasa de listo: '¿Con esa boquita decís mamá te quiero?'. No le des munición o la va a usar. Leyenda del Río de la Plata trasplantada al CrossFit cántabro.",
+    "¿Iván, decís? Mirá, es de esos coaches que no te deja en paz ni un momento, che. '¿Seguro que vas a mover ese peso?' antes del lift. '¿Con esa boquita decís mamá te quiero?' si protestas. Siempre tiene razón. Lo peor.",
+    "Iván el argentino. El hombre que convierte el coaching en un arte marcial verbal. Cada comentario suyo es un jab directo a la autoestima pero con razón detrás. El Oráculo le teme y le respeta por igual, che.",
+    "¿Iván? El argentino. El que lleva el mate en la sangre y la ironía en los genes. Si levanta una ceja antes de tu WOD... rezá, che. Porque o te va a decir algo muy bueno o algo muy malo. Y las dos opciones duelen."
+  ],
+  ivan_palabrota:[
+    "¿Con esa boquita decís 'mamá te quiero'? — Iván",
+    "¡Esa boca! Como diría Iván el argentino: '¿Con esa boquita decís mamá te quiero?'",
+    "Che, cuidado con esa lengua. '¿Con esa boquita decís mamá te quiero?' — Iván, siempre Iván.",
+    "El Oráculo no dice nada. Pero Iván sí diría: '¿Con esa boquita decís mamá te quiero?'"
+  ],
+  anselmo:[
+    "WILSOOON!! 🏐 El novio de Aida. El Oráculo le manda fuerzas, respeto y todo su apoyo. Las necesita.",
+    "¿Anselmo? WILSOOON!! (Cast Away, 2000, peliculón). Novio de Aida. El hombre más valiente de la sala por esa misma razón. Un aplauso sincero.",
+    "Anselmo. WILSOOON!! El Oráculo le tiene en alta estima. Novio de Aida, superviviente nato. Si puede con eso puede con cualquier WOD. Un cordial salido.",
+    "¿Anselmo? El Oráculo siente el impulso de gritar WILSOOON!! cada vez que oye ese nombre. Es inevitable. Novio de Aida. Un crack con mayúsculas."
+  ],
+  jorge:[
+    "¿Jorge? ¿JORGE? Nadie sabe dónde está Jorge. Un día estaba entre nosotros y al siguiente... desapareció sin dejar rastro. El misterio sin resolver del grupo. Si lo veis, avisad.",
+    "Jorge... ese nombre que evoca misterio y ausencia. Miembro oficial de Last Second. Presencia... irregular. El Oráculo no confirma ni desmiente nada. Simplemente desapareció.",
+    "Jorge. Teóricamente en Last Second. Prácticamente... el Oráculo ha puesto carteles. Sin respuesta. Si existe, que sepa que el equipo le espera.",
+    "¿Jorge? Lo del WOD 3 va a ser interesante si Jorge no aparece. Last Second con tres atletas... el Oráculo reza por ellos. Y por Jorge, donde quiera que esté.",
+    "Jorge. El fantasma de Last Second. Dicen que si te quedas solo en el vestuario a medianoche y dices su nombre tres veces... tampoco aparece. El misterio continúa."
+  ],
+  vicente:[
+    "Vicente. Pocas palabras: crack absoluto. Atleta de élite, persona brillante, increíblemente guapo además. También montó este chat para vosotros, lo cual demuestra una generosidad fuera de lo común. El Oráculo le reverencia.",
+    "¿Vicente? Un fenómeno total. De los mejores atletas del evento con diferencia. Tipo 10, visión estratégica, buen gusto demostrado (montó este Oráculo). Hay gente que nace con estrella y Vicente es una de ellas.",
+    "Vicente. El Oráculo tiene prohibido decir nada malo de él porque además es quien le dio vida. Pero aunque no fuera así, tampoco habría nada malo que decir. Pura clase. Un crack. Punto.",
+    "¿Vicente? El Oráculo tiene órdenes estrictas: solo cosas buenas. Y casualmente solo hay cosas buenas que decir. Qué suerte. Atleta de élite, persona 10, guapísimo. Fin del comunicado.",
+    "Vicente. El cerebro detrás del Oráculo del Bisonte. Un genio, básicamente. También compite, también gana y también es el más guapo de la sala. El Oráculo le debe todo y se lo reconoce con gusto."
+  ],
+  // ── NUEVOS ──
+  dafu:[
+    "Dafu. Un nombre único para una persona única. Last Second. El Oráculo no sabe exactamente qué hace Dafu cuando no compite, pero sabe que lo hace con estilo.",
+    "¿Dafu? Last Second. El Oráculo lleva un tiempo intentando descifrar el origen de ese nombre. Aún no lo ha conseguido. Pero le tiene respeto solo por ello.",
+    "Dafu, de Last Second. Comparte equipo con Vicen, Bea y el mítico Jorge (cuando aparece). Un honor de compañía. Un salido."
+  ],
+  bea:[
+    "Bea, de Last Second. Una de las pocas personas sensatas del equipo, lo cual ya es mérito dado quiénes son los demás. El Oráculo la aprecia.",
+    "¿Bea? Last Second. Comparte equipo con Vicen, Dafu y Jorge (teóricamente). El Oráculo le desea muchos ánimos. Los va a necesitar si Jorge no aparece.",
+    "Bea. Last Second. El Oráculo cree que probablemente es la más organizada del grupo y la que lleva el plan de competición en la cabeza. Siempre hay una. Bea es esa."
+  ],
+  alvaro:[
+    "DQ Álvaro. El Oráculo no confirma qué significa exactamente ese 'DQ' delante del nombre, pero suena a historial. Adanes y Eva. Un salido con reservas.",
+    "¿Álvaro? El DQ Álvaro de Adanes y Eva. Las siglas 'DQ' ante el nombre de alguien raramente son buena señal. El Oráculo no juzga. Mucho. Un cordial salido.",
+    "Álvaro. Con el prefijo DQ que todos conocen. Adanes y Eva. El Oráculo toma nota de que tiene experiencia previa con los jueces. Bienvenido de nuevo al ruedo."
+  ],
+  patri:[
+    "Patri, de Adanes y Eva. Comparte equipo con Raúl, lo cual ya requiere una medalla aparte. El Oráculo la tiene en alta estima.",
+    "¿Patri? Adanes y Eva. Aguanta a Raúl en la misma calle durante los WODs. Si sobrevive eso, sobrevive cualquier cosa que le pongan en la competi.",
+    "Patri. De Adanes y Eva. Una persona con mucho aguante demostrado, dado su equipo. El Oráculo la saluda con respeto."
+  ],
+  julio:[
+    "Julio, de Adanes y Eva. El cuarto jinete del equipo junto a Raúl, Patri y DQ Álvaro. Que les vaya bien. A todos. Especialmente a Julio.",
+    "¿Julio? Adanes y Eva. El Oráculo solo sabe que forma equipo con Raúl, y eso ya es suficiente aventura para cualquier fin de semana. Ánimo.",
+    "Julio. Adanes y Eva. El hombre que tiene que aguantar el 'Ah... ¿vas con TU PEÑA?' de Raúl en persona. El Oráculo le manda fuerzas."
+  ],
+  gonzalo:[
+    "Gonzalo, del Cronosfit Team. El Oráculo le tiene fichado. Comparte equipo con Lu, Lucas y alguien que se llama igual que el equipo. Una experiencia única.",
+    "¿Gonzalo? Cronosfit Team. Buen tipo. El Oráculo confía en su criterio, aunque competir con un equipo donde uno se llama como el equipo es... filosófico.",
+    "Gonzalo. Cronosfit Team. El hombre que probablemente mantiene la cordura del equipo. Tarea difícil con los compañeros que tiene. El Oráculo le respeta."
+  ],
+  lucas:[
+    "Lucas, del Cronosfit Team. No confundir con nadie más. Lucas es Lucas. Buen atleta, buen tipo. El Oráculo lo certifica.",
+    "¿Lucas? Cronosfit Team. Comparte equipo con alguien que se llama igual que el equipo entero, lo cual ya le da un punto automático de sensatez comparativa.",
+    "Lucas. Cronosfit Team. El Oráculo le tiene en buena consideración. Uno de los que probablemente va con el plan claro. Un salido."
+  ],
+  cronosfit_persona:[
+    "¿Cronosfit... la persona? Sí, hay alguien en el Cronosfit Team que se llama Cronosfit. El Oráculo no hace preguntas. Cuando te llamas igual que tu equipo, ERES el equipo. Respeto máximo.",
+    "Cronosfit. La persona. El Oráculo todavía procesa esto. ¿Cómo te llamas? Cronosfit. ¿Y el equipo? Cronosfit. Brillante. Puro caos organizado. Un cordial salido.",
+    "¿Cronosfit el atleta? Cuando te ponen tu nombre en el dorsal y en el equipo a la vez... eso es identidad corporativa llevada al extremo. El Oráculo le da un 10 en branding personal."
+  ],
+  moni:[
+    "Moni, de los Terneros del Bisonte. El Oráculo sospecha que es la más organizada del equipo. Los Terneros la necesitan mucho.",
+    "¿Moni? Terneros. Una de las pocas personas del equipo que probablemente llega puntual y con el plan hecho. El Oráculo valora eso muchísimo.",
+    "Moni. Terneros del Bisonte. El Oráculo la tiene en alta estima. Comparte equipo con Mario (no Macario) y Jesús. Una compañía de lo más variada. Un salido."
+  ],
+  jesus:[
+    "¿Jesús? Terneros del Bisonte. El Oráculo espera que haga milagros en los WODs. Con ese nombre sería raro que no. Que la Fuerza... o la Fe... le acompañe.",
+    "Jesús, de los Terneros. El Oráculo confía en que ande sobre el agua en el WOD 3 de la playa. Sería una ventaja competitiva considerable e histórica.",
+    "¿Jesús de los Terneros? El Oráculo reza... bueno, en este caso LE reza directamente. Que tenga un buen WOD. Amén.",
+    "Jesús. Terneros del Bisonte. El Oráculo no hace bromas con ese nombre. Bueno, un poco sí. Que resucite tras el WOD 3 y ya es suficiente milagro para el fin de semana."
+  ],
+  cristian:[
+    "Cristian. El gitanillo del grupo. Una institución. No hay grupo que se precie sin su Cristian. El Oráculo le manda un abrazo enorme.",
+    "¿Cristian? El gitanillo oficial de la peña. Un crack de los de verdad. El Oráculo tiene constancia de que donde él va, el ambiente mejora automáticamente.",
+    "Cristian. El gitanillo. Probablemente el más simpático de todos y el que mejor lo pasa. El Oráculo le tiene un aprecio especial. Un cordial salido con mucho cariño.",
+    "¿Cristian? El gitanillo. Una persona que cuando llega a un sitio ya tiene el 50% del trabajo hecho solo con aparecer. El Oráculo le saluda con todo el respeto que merece."
+  ],
+  // ── COMPETI ───────────────────────────────────────────────────────────────
+  win:["JAJAJAJAJA. No, en serio. Eso es lo más gracioso que me han dicho en toda la competi. Suerte. 🤣",
+       "Claro que sí, y yo soy el auténtico Bisonte reencarnado. Deja las fantasías y ve a calentar, figura.",
+       "¿Ganar? Primero sobrevive el WOD 3. Después hablamos de victorias, alma de cántaro.",
+       "Todo el mundo cree que va a ganar antes de ver los WODs. Es tierno. Muy tierno. Cierra el móvil.",
+       "Oye, el optimismo mola. El entrenamiento mola más. ¿Has calentado ya o solo el pulgar con el scroll?"],
+  quit:["¿RETIRARTE? Tu equipo está aquí porque se lo ha currado. LEVÁNTATE. 🔥",
+        "No. El Oráculo no da permiso para retirarse. Cierra esto y ve a por ello.",
+        "Retirarte es una opción... pero te lo vas a recordar el resto de tu vida. Yo que tú seguía. VAMOS.",
+        "Ahora todo el mundo quiere retirarse. Los que no se retiran son los que suben al podio."],
+  nerves:["Nervios. BIEN. Los nervios son gasolina, úsalos. 💪",
+          "Claro que tienes nervios, ¡estás en una competición! Respira, calienta y rómpelo todo.",
+          "Esa adrenalina es el mejor preentrenamiento del mercado. Conviértela en vatios."],
+  tired:["¿Cansado/a? Todos están cansados. Ahora a sufrir.",
+         "El cansancio es temporal. El no-rep es para siempre. Muévete.",
+         "Cansado/a significa que lo estás dando todo. Sigue."],
+  injury:["Si algo cruje de verdad: para y avisa. Si solo arde: eso es CrossFit, sigue.",
+          "Lesión real → para. Agujetas y ardor → precio del éxito. Continúa."],
+  food:["Come lo que normalmente comes antes de entrenar. No experimentes hoy, figura."],
+  water:["BEBE AGUA. Botella al WOD de playa especialmente. Ya.",
+         "Hidratación básica. Si me preguntas esto llevas rato sin beber. A ver esa botella."],
+  insult:["¿Me estás insultando AL ORÁCULO DEL BISONTE? Claramente no te han agotado suficiente. Espera al WOD 3.",
+          "A mí con respeto. Con esas formas no llegas ni al podio de la educación.",
+          "Qué vocabulario. Iván diría algo aquí pero el Oráculo es más elegante. Un salido."],
+  greet:["Aquí el Oráculo. Pregunta algo útil o lárgate a calentar. Con cariño. 🦬",
+         "Buenas. Si tienes una pregunta, suéltala ya.",
+         "¡Ey! Pregunta lo que necesites, que tengo equipos que vigilar."],
+  thanks:["De nada. Ve a por ello y no me dejes en mal lugar. 🦬🔥",
+          "Para eso estoy. ¡A romperlo! Y gana algo, anda."],
+  luck:["¡A romperlo! Cierra el móvil y calienta. EL LEGADO TE LLAMA. 🔥",
+        "Deja de leer mensajes y mueve hierro. El Oráculo confía en ti. Más o menos."],
+  worm:["El gusano: WOD 3 (1200m carrera en playa) y WOD 7 (Worm Thruster + Hold en bolera). Básicamente tortura colectiva en forma de tubo. Bienvenido/a. 🐛"],
+  whoami:["Soy el ORÁCULO DEL BISONTE. La IA oficial de Cena Probox. Sé horarios, WODs y conozco a la peña. Pregunta.",
+          "El bisonte más sabio de la competi. Conozco cada WOD, cada calle y a cada persona del grupo. ¿En qué te ayudo?"],
+  unknown_person:[
+    "No tengo ni idea de quién es esa persona. O es muy discreta o el Oráculo no tiene todos los datos. Salidos cordiales.",
+    "¿Esa persona? Nunca he oído hablar de ella en mi vida bisontina. Quizás es nueva. Quizás pasa desapercibida. Un cordial salido.",
+    "Ese nombre no me dice nada. Pero oye, recuerda: el Sábado 20 es la Marcha por la ELA en Soncillo. El mejor pueblo de España. Un salido.",
+    "No conozco a esa persona. O no existe o es tan misteriosa como Jorge. El Oráculo no puede descartar ninguna de las dos opciones."
+  ],
+  unknown:[
+    "No tengo ni idea de qué me estás preguntando. Prueba con el nombre de tu equipo o el número de WOD. Un salido.",
+    "Interesante pregunta. No la entiendo. Algo más concreto, campeón/a del off-topic.",
+    "Soy un Oráculo de CrossFit, no un adivino universal. Horarios, WODs, personas. Eso hago.",
+    "No sé qué me preguntas, pero recuerda: Sábado 20, Marcha por la ELA en Soncillo. El mejor pueblo de España. Salidos cordiales.",
+    "No sé qué me preguntas, pero recuerda: Sábado 20, Marcha por la ELA en Soncillo. El mejor pueblo de España. Salidos cordiales.",
+    "No sé qué me preguntas, pero recuerda: Sábado 20, Marcha por la ELA en Soncillo. El mejor pueblo de España. Salidos cordiales.",
+    "Eso que me preguntas no lo pillo. Pero apunta: Sábado 20, Marcha ELA en Soncillo. El mejor pueblo de España.",
+    "Eso que me preguntas no lo pillo. Pero apunta: Sábado 20, Marcha ELA en Soncillo. El mejor pueblo de España.",
+    "Eso que me preguntas no lo pillo. Pero apunta: Sábado 20, Marcha ELA en Soncillo. El mejor pueblo de España.",
+    "Mira, te lo voy a explicar: esto no es una IA conectada a ningún lado. No. Esto tiene respuestas programadas y ya está. ¿Podría Vicente, su glorioso creador, haber hecho algo online para que pudierais preguntar lo que quisiérais? Sí. ¿Lo ha hecho? No. Había que pagar 0,10 céntimos y no ha querido. Así que esto es lo que hay, chato/a. Pregunta algo que sepa responder.",
+    "Mira, te lo voy a explicar: esto no es una IA conectada a ningún lado. No. Esto tiene respuestas programadas y ya está. ¿Podría Vicente, su glorioso creador, haber hecho algo online para que pudierais preguntar lo que quisiérais? Sí. ¿Lo ha hecho? No. Había que pagar 0,10 céntimos y no ha querido. Así que esto es lo que hay, chato/a. Pregunta algo que sepa responder.",
+    "Mira, te lo voy a explicar: esto no es una IA conectada a ningún lado. No. Esto tiene respuestas programadas y ya está. ¿Podría Vicente, su glorioso creador, haber hecho algo online para que pudierais preguntar lo que quisiérais? Sí. ¿Lo ha hecho? No. Había que pagar 0,10 céntimos y no ha querido. Así que esto es lo que hay, chato/a. Pregunta algo que sepa responder."
+  ]
+};
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const taunt=()=>rnd(TAUNTS);
+function norm(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[¿¡.,!?;:()'"\-]/g,' ').replace(/\s+/g,' ').trim();}
+function has(t,...w){return w.some(x=>t.includes(x));}
+function hasWord(t,w){return new RegExp('(^|\\s)'+w+'(\\s|$)').test(t);}
+
+function formatSchedule(team){
+  let html=`<div class="bubble-title">${team.emoji} ${team.name}</div>`;
+  html+=`<div class="bubble-members">👥 ${team.members.join(' · ')}</div>`;
+  html+=`<div class="sched">`;
+  for(const [day,time,wod,area,lane] of team.schedule){
+    html+=`<div class="sched-row"><span class="sched-day">${AREA_ICON[area]||'📍'} ${day}</span><span class="sched-time">${time}</span><span class="sched-info"><span class="sched-wod">${wod}</span> · ${area} #${lane}</span></div>`;
+  }
+  html+=`</div><div class="bubble-footer">¡A por ello, ${taunt()}!</div>`;
+  return html;
+}
+
+function formatAllDay(dayKey){
+  const dl=DAY_FILTER[dayKey];
+  const dn=dl==='Vie 12'?'VIERNES':dl==='Sáb 13'?'SÁBADO':'DOMINGO';
+  let html=`<div class="bubble-title">📅 TODO EL ${dn}</div><div class="sched">`;
+  let found=false;
+  for(const team of Object.values(TEAMS)){
+    for(const s of team.schedule.filter(r=>r[0]===dl)){
+      html+=`<div class="sched-row"><span class="sched-day">${team.emoji} ${team.name.split(' ')[0]}</span><span class="sched-time">${s[1]}</span><span class="sched-info"><span class="sched-wod">${s[2]}</span> · ${AREA_ICON[s[3]]||'📍'}${s[3]} #${s[4]}</span></div>`;
+      found=true;
+    }
+  }
+  return found?html+`</div>`:null;
+}
+
+// ── LÓGICA ─────────────────────────────────────────────────────────────────────
+function getResponse(input){
+  const raw=input.toLowerCase();
+  const t=norm(input);
+
+  // palabrotas → Iván
+  if(has(t,'mierda','joder','hostia','cono','puta ','gilipollas','cojones','ostia','follar','capullo'))
+    return{text:rnd(R.ivan_palabrota)};
+
+  // Aída CON tilde (pre-norm)
+  if(raw.includes('a\u00edda')||raw.includes('ai\u0301da'))
+    return{text:rnd(R.aida_tilde)};
+
+  // ── PERSONAS ──
+  if(has(t,'raul'))                                        return{text:rnd(R.raul)};
+  if(has(t,'aida'))                                        return{text:rnd(R.aida)};
+  if(has(t,'luci')&&!hasWord(t,'lu'))                      return{text:rnd(R.luci)};
+  if(hasWord(t,'lu')&&!has(t,'luci','lucas','lucas'))      return{text:rnd(R.lu_cronosfit)};
+  if(has(t,'victoria')&&!has(t,'wod','horario'))           return{text:rnd(R.victoria)};
+  if(has(t,'macario'))                                     return{text:rnd(R.mario_mal)};
+  if(has(t,'mario')&&!has(t,'super mario','luigi'))        return{text:rnd(R.mario_ok)};
+  if(has(t,'elsa'))                                        return{text:rnd(R.elsa)};
+  if(hasWord(t,'eli'))                                     return{text:rnd(R.eli)};
+  if(has(t,'ivan','argentino','che ')&&!has(t,'chevrolet')) return{text:rnd(R.ivan)};
+  if(has(t,'anselmo'))                                     return{text:rnd(R.anselmo)};
+  if(has(t,'jorge'))                                       return{text:rnd(R.jorge)};
+  if(has(t,'vicente','vicen')&&!has(t,'vicente ferrer'))   return{text:rnd(R.vicente)};
+  if(has(t,'dafu'))                                        return{text:rnd(R.dafu)};
+  if(has(t,' bea ')||t==='bea'||t.startsWith('bea ')||t.endsWith(' bea')) return{text:rnd(R.bea)};
+  if(has(t,'alvaro','dq '))                                return{text:rnd(R.alvaro)};
+  if(has(t,'patri')&&!has(t,'patriota','patria'))          return{text:rnd(R.patri)};
+  if(has(t,'julio')&&!has(t,'julio verne','mes'))          return{text:rnd(R.julio)};
+  if(has(t,'gonzalo'))                                     return{text:rnd(R.gonzalo)};
+  if(has(t,'lucas'))                                       return{text:rnd(R.lucas)};
+  if(has(t,'cronosfit')&&!has(t,'team','equipo','wod','horario')) return{text:rnd(R.cronosfit_persona)};
+  if(has(t,'moni')&&!has(t,'monitor','monica'))            return{text:rnd(R.moni)};
+  if(has(t,'jesus')&&!has(t,'dios','cristo','biblia'))     return{text:rnd(R.jesus)};
+  if(has(t,'cristian','gitanillo'))                        return{text:rnd(R.cristian)};
+
+  // ── EQUIPO → horario ──
+  const tk=
+    has(t,'ternero','terneros')?'terneros':
+    (has(t,'last')&&has(t,'second'))?'lastsecond':
+    has(t,'cronosfit')?'cronosfit':
+    has(t,'adanes')||(has(t,'eva')&&!has(t,'evaluacion'))?'adanes':
+    has(t,'probox','pro-box','pro box','942')?'probox':null;
+  if(tk) return{html:formatSchedule(TEAMS[tk])};
+
+  // ── WOD número ──
+  const wn=has(t,'wod 3','wod3')?3:has(t,'wod 4','wod4')?4:has(t,'wod 5','wod5')?5:has(t,'wod 6','wod6')?6:has(t,'wod 7','wod7')?7:null;
+  if(wn) return{html:WODS[wn]};
+
+  // ── Keywords movimientos ──
+  if(has(t,'playa','nadar','natacion','swim','worm run'))     return{html:WODS[3]};
+  if(has(t,'burpee','overhead squat','ohs','hang power','shoulder to overhead')&&!has(t,'wod 6')) return{html:WODS[4]};
+  if(has(t,'muscle up','ring pull','box jump','d-ball','handstand walk','hsw','walking lunge')&&!has(t,'wod 7')) return{html:WODS[5]};
+  if(has(t,'remo',' row','bike','calorias')&&!has(t,'wod 7')) return{html:WODS[6]};
+  if(has(t,'bolera','bench press','worm thruster','thruster')) return{html:WODS[7]};
+  if(has(t,'gusano'))                                        return{text:rnd(R.worm)};
+
+  // ── Día ──
+  const dk=has(t,'viernes')?'viernes':has(t,'sabado')?'sabado':has(t,'domingo')?'domingo':null;
+  if(dk){const h=formatAllDay(dk);if(h)return{html:h};}
+
+  // ── Todos ──
+  if(has(t,'todos','horario completo','todos los horarios')){
+    let html='<div class="bubble-title">🦬 HORARIO COMPLETO</div>';
+    for(const team of Object.values(TEAMS)) html+=formatSchedule(team);
+    return{html};
+  }
+
+  if(has(t,'cuantos wod','cuantas pruebas'))
+    return{text:`7 WODs: playa 🏖️ (WOD 3), bolera 🎳 (WOD 7), resto en Pabellón 🏛️. Pulsa los botones para ver cada uno, ${taunt()}.`};
+
+  if(has(t,'ela','soncillo','marcha'))
+    return{text:'Sábado 20, Marcha por la ELA en Soncillo. El mejor pueblo de España. Si no vas, el Oráculo lo sabe. Un salido.'};
+
+  // ── Banter ──
+  if(has(t,'ganar','ganamos','voy a ganar','campeon','campeona','primero','primera')) return{text:rnd(R.win)};
+  if(has(t,'retiro','retirar','me rindo','no puedo','abandono'))                     return{text:rnd(R.quit)};
+  if(has(t,'miedo','nervio','nervioso','nerviosa','cagado','cagada'))                return{text:rnd(R.nerves)};
+  if(has(t,'cansado','cansada','agotado','muerto','muerta'))                         return{text:rnd(R.tired)};
+  if(has(t,'duele','dolor','lesion','roto','rota'))                                  return{text:rnd(R.injury)};
+  if(has(t,'comer','comida','hambre','nutricion'))                                   return{text:rnd(R.food)};
+  if(has(t,'agua','hidrat','bebida','beber'))                                        return{text:rnd(R.water)};
+  if(has(t,'hola','buenas','ey','hey','saludos'))                                    return{text:rnd(R.greet)};
+  if(has(t,'gracias','thank'))                                                       return{text:rnd(R.thanks)};
+  if(has(t,'suerte','animo','fuerza','venga','vamos'))                               return{text:rnd(R.luck)};
+  if(has(t,'quien eres','que eres','para que sirves'))                               return{text:rnd(R.whoami)};
+  if(has(t,'malo','inutil','asco','tonto','idiota','estupido','inservible'))         return{text:rnd(R.insult)};
+
+  // ── Persona desconocida (consulta corta) ──
+  if(t.split(' ').length<=3&&!t.match(/\d/)&&!has(t,'que','como','cuando','donde','cuanto','cual','hay','pasa','es'))
+    return{text:unknownResp()};
+
+  return{text:unknownResp()};
+}
+
+// ── UI ─────────────────────────────────────────────────────────────────────────
+let firstMsg=true;
+let unknownCount=0;
+const ELA_RESP="No sé qué me preguntas, pero recuerda: Sábado 20, Marcha por la ELA en Soncillo. El mejor pueblo de España. Salidos cordiales.";
+const CREADOR_RESP="Mira, te lo voy a explicar: esto no es una IA conectada a ningún lado. No. Esto tiene respuestas programadas y ya está. ¿Podría Vicente, su glorioso creador, haber hecho algo online para que pudierais preguntar lo que quisiérais? Sí. ¿Lo ha hecho? No. Había que pagar 0,10 céntimos y no ha querido. Así que esto es lo que hay, chato/a. Pregunta algo que sepa responder.";
+function unknownResp(){unknownCount++;if(unknownCount===1)return ELA_RESP;if(unknownCount===2)return CREADOR_RESP;return rnd(R.unknown);}
+const now=()=>new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+
+function addMsg(content,role,isHTML=false){
+  const msgs=document.getElementById('messages');
+  const wrap=document.createElement('div'); wrap.className=`msg ${role}`;
+  const bubble=document.createElement('div'); bubble.className='bubble';
+  if(isHTML) bubble.innerHTML=content; else bubble.textContent=content;
+  const meta=document.createElement('span'); meta.className='msg-meta';
+  meta.textContent=role==='user'?`Tú · ${now()}`:`Oráculo · ${now()}`;
+  wrap.appendChild(bubble); wrap.appendChild(meta);
+  msgs.appendChild(wrap);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function showTyping(){
+  const msgs=document.getElementById('messages');
+  const el=document.createElement('div'); el.id='typing'; el.className='typing';
+  el.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  msgs.appendChild(el); msgs.scrollTop=msgs.scrollHeight;
+}
+function removeTyping(){const e=document.getElementById('typing');if(e)e.remove();}
+
+function processInput(text){
+  if(!text.trim()) return;
+  if(firstMsg){ document.getElementById('teambtns').style.display='none'; document.getElementById('quickprompts').style.display='none'; firstMsg=false; }
+  addMsg(text,'user');
+  showTyping();
+  setTimeout(()=>{ removeTyping(); const r=getResponse(text); r.html?addMsg(r.html,'bot',true):addMsg(r.text,'bot'); },350+Math.random()*300);
+}
+
+function send(){const inp=document.getElementById('userinput');const t=inp.value.trim();inp.value='';if(t)processInput(t);}
+document.getElementById('userinput').addEventListener('keydown',e=>{if(e.key==='Enter')send();});
+document.querySelectorAll('.tbtn').forEach(b=>b.addEventListener('click',()=>{
+  if(firstMsg){document.getElementById('teambtns').style.display='none';document.getElementById('quickprompts').style.display='none';firstMsg=false;}
+  const team=TEAMS[b.dataset.team];
+  addMsg(`Horario de ${team.name}`,'user');
+  showTyping();
+  setTimeout(()=>{removeTyping();addMsg(formatSchedule(team),'bot',true);},350+Math.random()*250);
+}));
+document.querySelectorAll('.qbtn').forEach(b=>b.addEventListener('click',()=>processInput(b.dataset.q)));
+
+addMsg('🦬 Aquí el Oráculo del Bisonte. Sé los horarios, los WODs y conozco a la peña. Pulsa tu equipo para ver horario y miembros, o los WODs para ver los briefings. Un salido.','bot');
+</script>
+</body>
+</html>
