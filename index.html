@@ -54,6 +54,33 @@ h1{font-family:'Bebas Neue',Impact,'Arial Black',sans-serif;font-size:1.8rem;let
 #sendbtn:hover{background:#D96510;transform:scale(1.06)}
 #sendbtn:active{transform:scale(.97)}
 #sendbtn svg{width:18px;height:18px;fill:#0A0805}
+#tabbar{display:flex;flex-shrink:0;border-bottom:2px solid #1E1008;background:#0A0805}
+.tab{flex:1;padding:11px 8px;text-align:center;cursor:pointer;font-size:.72rem;color:#5A4030;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;font-family:inherit}
+.tab.active{color:#C4580A;border-bottom-color:#C4580A}
+#chat-tab{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#schedule-tab{flex:1;display:none;flex-direction:column;overflow:hidden}
+#team-filters{display:flex;flex-wrap:wrap;gap:5px;padding:8px 12px;flex-shrink:0;border-bottom:1px solid #1A1008}
+.tfbtn{background:#161008;border:1px solid #2A1608;color:#7A5030;padding:5px 10px;border-radius:20px;font-size:.7rem;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.tfbtn.active,.tfbtn:hover{border-color:#C4580A;color:#C4580A;background:#1C1008}
+#schedule-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px 12px;gap:0}
+#schedule-list::-webkit-scrollbar{width:3px}
+#schedule-list::-webkit-scrollbar-thumb{background:#3A2010;border-radius:3px}
+.day-hdr{color:#9A6030;font-size:.68rem;letter-spacing:3px;text-transform:uppercase;font-weight:700;padding:12px 0 5px;margin-bottom:4px}
+.day-hdr:first-child{padding-top:4px}
+.se{padding:9px 12px;border-radius:10px;margin-bottom:6px}
+.se.past{background:#0D0A06;opacity:.45;border:1px solid #181008}
+.se.inprogress{background:#1A1C06;border:1px solid #8A8010;border-left:3px solid #D4B800}
+.se.next{background:#1C1008;border:1px solid #3A2010;border-left:3px solid #C4580A}
+.se.future{background:#131008;border:1px solid #221408}
+.se-top{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.se-time{color:#C4580A;font-weight:700;font-size:.84rem;white-space:nowrap}
+.se-wod{color:#E8C080;font-weight:600;font-size:.82rem}
+.se-badge{font-size:.6rem;padding:2px 7px;border-radius:10px;font-weight:700;letter-spacing:.5px;margin-left:auto;white-space:nowrap}
+.b-past{background:#1A1008;color:#4A3020}
+.b-next{background:#C4580A;color:#0A0805}
+.b-now{background:#C4C000;color:#0A0805}
+.se-detail{font-size:.78rem;color:#7A6040}
+.se-team{font-size:.73rem;color:#5A4030;margin-top:2px}
 #curiosity{font-size:.63rem;color:#7A5530;margin-top:5px;min-height:1.1em;letter-spacing:1.5px;transition:opacity .6s ease;font-style:italic}
 </style>
 </head>
@@ -73,6 +100,11 @@ h1{font-family:'Bebas Neue',Impact,'Arial Black',sans-serif;font-size:1.8rem;let
     <div class="tagline">Chat Oficial de Cena Probox · Jun 2026</div>
     <div id="curiosity"></div>
   </header>
+  <div id="tabbar">
+    <button class="tab active" data-tab="chat" onclick="switchTab('chat')">💬 Chat</button>
+    <button class="tab" data-tab="schedule" onclick="switchTab('schedule')">📅 Horarios</button>
+  </div>
+  <div id="chat-tab">
   <div id="messages"></div>
   <div id="teambtns">
     <button class="tbtn" data-team="terneros">🐂 Terneros</button>
@@ -95,6 +127,18 @@ h1{font-family:'Bebas Neue',Impact,'Arial Black',sans-serif;font-size:1.8rem;let
     <button id="sendbtn" onclick="send()" aria-label="Enviar">
       <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
     </button>
+  </div>
+  </div><!-- /chat-tab -->
+  <div id="schedule-tab">
+    <div id="team-filters">
+      <button class="tfbtn active" data-team="all" onclick="setFilter('all')">🦬 Todos</button>
+      <button class="tfbtn" data-team="terneros" onclick="setFilter('terneros')">🐂 Terneros</button>
+      <button class="tfbtn" data-team="lastsecond" onclick="setFilter('lastsecond')">⏱️ Last Second</button>
+      <button class="tfbtn" data-team="cronosfit" onclick="setFilter('cronosfit')">⚡ Cronosfit</button>
+      <button class="tfbtn" data-team="adanes" onclick="setFilter('adanes')">🍎 Adanes</button>
+      <button class="tfbtn" data-team="probox" onclick="setFilter('probox')">📦 Pro-Box</button>
+    </div>
+    <div id="schedule-list"></div>
   </div>
 </div>
 <script>
@@ -397,7 +441,7 @@ function formatSchedule(team){
   html+=`<div class="bubble-members">👥 ${team.members.join(' · ')}</div>`;
   html+=`<div class="sched">`;
   for(const [day,time,wod,area,lane] of team.schedule){
-    html+=`<div class="sched-row"><span class="sched-day">${AREA_ICON[area]||'📍'} ${day}</span><span class="sched-time">${time}</span><span class="sched-info"><span class="sched-wod">${wod}</span> · ${area} #${lane}</span></div>`;
+    html+=`<div class="sched-row"><span class="sched-day">${AREA_ICON[area]||'📍'} ${day}</span><span class="sched-time">${time}</span><span class="sched-info"><span class="sched-wod">${wod}</span> · ${area}, calle ${lane}</span></div>`;
   }
   html+=`</div><div class="bubble-footer">¡A por ello, ${taunt()}!</div>`;
   return html;
@@ -580,6 +624,95 @@ document.querySelectorAll('.tbtn').forEach(b=>b.addEventListener('click',()=>{
 document.querySelectorAll('.qbtn').forEach(b=>b.addEventListener('click',()=>processInput(b.dataset.q)));
 
 addMsg('🦬 Aquí el Oráculo del Bisonte. Sé los horarios, los WODs y conozco a la peña. Pulsa tu equipo para ver horario y miembros, o los WODs para ver los briefings. Un salido.','bot');
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+function switchTab(tab){
+  document.getElementById('chat-tab').style.display=tab==='chat'?'flex':'none';
+  document.getElementById('schedule-tab').style.display=tab==='schedule'?'flex':'none';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+  if(tab==='schedule') renderSchedule();
+}
+
+// ── HORARIOS ─────────────────────────────────────────────────────────────────
+const DATE_MAP={'Vie 12':'2026-06-12','Sáb 13':'2026-06-13','Dom 14':'2026-06-14'};
+const DAY_LABELS={'Vie 12':'VIERNES 12 JUNIO','Sáb 13':'SÁBADO 13 JUNIO','Dom 14':'DOMINGO 14 JUNIO'};
+
+const ALL_SLOTS=[];
+for(const[key,team]of Object.entries(TEAMS)){
+  for(const[day,time,wod,area,lane]of team.schedule){
+    const ds=DATE_MAP[day];
+    const ts=time.includes('-')?time.split('-')[0]:time;
+    const te=time.includes('-')?time.split('-')[1]:null;
+    const startDt=new Date(ds+'T'+ts+':00');
+    const endDt=te?new Date(ds+'T'+te+':00'):new Date(startDt.getTime()+90*60*1000);
+    ALL_SLOTS.push({teamKey:key,team,day,time,wod,area,lane,startDt,endDt});
+  }
+}
+ALL_SLOTS.sort((a,b)=>a.startDt-b.startDt);
+
+let activeFilter='all';
+
+function setFilter(key){
+  activeFilter=key;
+  document.querySelectorAll('.tfbtn').forEach(b=>b.classList.toggle('active',b.dataset.team===key));
+  renderSchedule();
+}
+
+function renderSchedule(){
+  const now=new Date();
+  const slots=activeFilter==='all'?ALL_SLOTS:ALL_SLOTS.filter(s=>s.teamKey===activeFilter);
+
+  // Find first upcoming
+  let nextIdx=-1;
+  for(let i=0;i<slots.length;i++){
+    if(slots[i].startDt>now){nextIdx=i;break;}
+  }
+
+  // Group by day preserving order
+  const days=['Vie 12','Sáb 13','Dom 14'];
+  let html='';
+  let globalIdx=0;
+
+  for(const day of days){
+    const daySlots=slots.filter(s=>s.day===day);
+    if(!daySlots.length) continue;
+    html+=`<div class="day-hdr">${DAY_LABELS[day]}</div>`;
+    for(const s of daySlots){
+      const idx=slots.indexOf(s);
+      const isPast=now>s.endDt;
+      const isNow=now>=s.startDt&&now<=s.endDt;
+      const isNext=idx===nextIdx;
+      let cls='se ';
+      let badge='';
+      if(isPast){cls+='past';badge='<span class="se-badge b-past">✓ Pasado</span>';}
+      else if(isNow){cls+='inprogress';badge='<span class="se-badge b-now">⚡ En curso</span>';}
+      else if(isNext){cls+='next';badge='<span class="se-badge b-next">▶ Próximo</span>';}
+      else{cls+='future';}
+      const teamLine=activeFilter==='all'?`<div class="se-team">${s.team.emoji} ${s.team.name}</div>`:'';
+      html+=`<div class="${cls}">
+        <div class="se-top">
+          <span class="se-time">${s.time}</span>
+          <span class="se-wod">${s.wod}</span>
+          ${badge}
+        </div>
+        <div class="se-detail">${AREA_ICON[s.area]||'📍'} ${s.area} · calle ${s.lane}</div>
+        ${teamLine}
+      </div>`;
+    }
+  }
+
+  if(!html) html='<div style="text-align:center;color:#5A4030;padding:40px 20px;font-size:.85rem">No hay WODs para este equipo.<br>O sí. El Oráculo no lo garantiza.</div>';
+  const list=document.getElementById('schedule-list');
+  list.innerHTML=html;
+
+  // Auto-scroll to next
+  if(nextIdx>=0){
+    setTimeout(()=>{
+      const el=list.querySelector('.next');
+      if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+    },150);
+  }
+}
 
 // ── CURIOSIDADES ROTATORIAS ─────────────────────────────────────────────────
 const CURIOSITIES=[
