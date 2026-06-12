@@ -54,6 +54,7 @@ h1{font-family:'Bebas Neue',Impact,'Arial Black',sans-serif;font-size:1.8rem;let
 #sendbtn:hover{background:#D96510;transform:scale(1.06)}
 #sendbtn:active{transform:scale(.97)}
 #sendbtn svg{width:18px;height:18px;fill:#0A0805}
+#curiosity{font-size:.63rem;color:#7A5530;margin-top:5px;min-height:1.1em;letter-spacing:1.5px;transition:opacity .6s ease;font-style:italic}
 </style>
 </head>
 <body>
@@ -70,6 +71,7 @@ h1{font-family:'Bebas Neue',Impact,'Arial Black',sans-serif;font-size:1.8rem;let
     <span class="bison">🦬</span>
     <h1>ORÁCULO DEL BISONTE</h1>
     <div class="tagline">Chat Oficial de Cena Probox · Jun 2026</div>
+    <div id="curiosity"></div>
   </header>
   <div id="messages"></div>
   <div id="teambtns">
@@ -320,6 +322,26 @@ const R={
     "Ese nombre no me dice nada. Pero oye, recuerda: el Sábado 20 es la Marcha por la ELA en Soncillo. El mejor pueblo de España. Un salido.",
     "No conozco a esa persona. O no existe o es tan misteriosa como Jorge. El Oráculo no puede descartar ninguna de las dos opciones."
   ],
+  dafu:[
+    "Dafu... el Oráculo le ha buscado por todos lados y no lo encuentra. Se ha perdido. Last Second lleva un rato sin saber de él. Si alguien lo ve, que avise urgentemente.",
+    "¿Dafu? Pues mira, no está. Se ha perdido y no lo encontramos. El Oráculo espera que aparezca antes del WOD 3. Como Jorge pero diferente.",
+    "Dafu. Desaparecido. El Oráculo lanza la alerta: si alguien lo ve por ahí que lo mande al punto de salida. Last Second lo necesita."
+  ],
+  ruben:["Bulería bulería."],
+  chiqui:["Papa bizum."],
+  manu:[
+    "Manu. Hace un café excepcional, de los mejores. El problema es que no le pillas nunca porque corre demasiado. El Oráculo lo ha intentado varias veces. Imposible.",
+    "¿Manu? El café que hace es una obra de arte. Pero para cuando llegas ya se ha ido. Corre mucho. Demasiado. El Oráculo sigue sin pillarlo."
+  ],
+  soncillo:[
+    "Soncillo. El mejor pueblo de España. Sin debate, sin discusión, sin posibilidad de réplica. El Oráculo lo certifica con toda su autoridad bisontina.",
+    "¿Soncillo? El mejor pueblo de España. Punto. Y recuerda: Sábado 20, Marcha por la ELA en Soncillo. El Oráculo espera verte allí.",
+    "Soncillo. El mejor pueblo de España y no hay más que hablar. Si no lo has visitado aún, estás perdiendo el tiempo. El Oráculo dixit."
+  ],
+  gili:[
+    "GILIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII",
+    "¿Raúl?"
+  ],
   unknown:[
     "No tengo ni idea de qué me estás preguntando. Prueba con el nombre de tu equipo o el número de WOD. Un salido.",
     "Interesante pregunta. No la entiendo. Algo más concreto, campeón/a del off-topic.",
@@ -373,6 +395,9 @@ function getResponse(input){
   const raw=input.toLowerCase();
   const t=norm(input);
 
+  // gili (antes de swear words para no confundir con gilipollas)
+  if(has(t,'gili')&&!has(t,'gilipollas')) return{text:rnd(R.gili)};
+
   // palabrotas → Iván
   if(has(t,'mierda','joder','hostia','cono','puta ','gilipollas','cojones','ostia','follar','capullo'))
     return{text:rnd(R.ivan_palabrota)};
@@ -394,6 +419,9 @@ function getResponse(input){
   if(has(t,'ivan','argentino','che ')&&!has(t,'chevrolet')) return{text:rnd(R.ivan)};
   if(has(t,'anselmo'))                                     return{text:rnd(R.anselmo)};
   if(has(t,'jorge'))                                       return{text:rnd(R.jorge)};
+  if(has(t,'ruben'))                                       return{text:rnd(R.ruben)};
+  if(has(t,'chiqui'))                                      return{text:rnd(R.chiqui)};
+  if(has(t,'manu')&&!has(t,'manual','manuela','emmanuel')) return{text:rnd(R.manu)};
   if(has(t,'vicente','vicen')&&!has(t,'vicente ferrer'))   return{text:rnd(R.vicente)};
   if(has(t,'dafu'))                                        return{text:rnd(R.dafu)};
   if(has(t,' bea ')||t==='bea'||t.startsWith('bea ')||t.endsWith(' bea')) return{text:rnd(R.bea)};
@@ -442,7 +470,8 @@ function getResponse(input){
   if(has(t,'cuantos wod','cuantas pruebas'))
     return{text:`7 WODs: playa 🏖️ (WOD 3), bolera 🎳 (WOD 7), resto en Pabellón 🏛️. Pulsa los botones para ver cada uno, ${taunt()}.`};
 
-  if(has(t,'ela','soncillo','marcha'))
+  if(has(t,'soncillo'))                                      return{text:rnd(R.soncillo)};
+  if(has(t,'ela','marcha'))
     return{text:'Sábado 20, Marcha por la ELA en Soncillo. El mejor pueblo de España. Si no vas, el Oráculo lo sabe. Un salido.'};
 
   // ── Banter ──
@@ -514,6 +543,35 @@ document.querySelectorAll('.tbtn').forEach(b=>b.addEventListener('click',()=>{
 document.querySelectorAll('.qbtn').forEach(b=>b.addEventListener('click',()=>processInput(b.dataset.q)));
 
 addMsg('🦬 Aquí el Oráculo del Bisonte. Sé los horarios, los WODs y conozco a la peña. Pulsa tu equipo para ver horario y miembros, o los WODs para ver los briefings. Un salido.','bot');
+
+// ── CURIOSIDADES ROTATORIAS ─────────────────────────────────────────────────
+const CURIOSITIES=[
+  "Pregunta por Vicente",
+  "Lo estás haciendo fatal",
+  "A Draco le gusta esto",
+  "9 de cada 10 Gilís recomiendan esta web",
+  "¿Dónde está Jorge?",
+  "El WOD 3 tiene playa. Y gusano.",
+  "Soncillo, el mejor pueblo de España",
+  "Hecho con 0,10€ que no se gastaron",
+  "¿Has bebido agua hoy?",
+  "Pregunta por Raúl, merece la pena",
+  "Last Second no sabe dónde está Dafu",
+  "Pregunta por Aida (sin tilde)",
+  "Jorge sigue sin aparecer",
+  "La peña del salido os saluda"
+];
+let curIdx=Math.floor(Math.random()*CURIOSITIES.length);
+const curEl=document.getElementById('curiosity');
+curEl.textContent='✦ '+CURIOSITIES[curIdx]+' ✦';
+setInterval(()=>{
+  curEl.style.opacity='0';
+  setTimeout(()=>{
+    curIdx=(curIdx+1)%CURIOSITIES.length;
+    curEl.textContent='✦ '+CURIOSITIES[curIdx]+' ✦';
+    curEl.style.opacity='1';
+  },600);
+},4000);
 </script>
 </body>
 </html>
