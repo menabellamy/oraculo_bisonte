@@ -327,6 +327,11 @@ const R={
     "¿Dafu? Pues mira, no está. Se ha perdido y no lo encontramos. El Oráculo espera que aparezca antes del WOD 3. Como Jorge pero diferente.",
     "Dafu. Desaparecido. El Oráculo lanza la alerta: si alguien lo ve por ahí que lo mande al punto de salida. Last Second lo necesita."
   ],
+  angela:[
+    "Ángela. El Oráculo ha notado algo curioso: desde que nació su hijo Enzo, ha coincidido exactamente con la desaparición de Jorge. El Oráculo no dice nada. Solo observa.",
+    "¿Ángela? Madre del pequeño Enzo. El Oráculo tiene una teoría: la llegada de Enzo y la desaparición de Jorge son demasiado simultáneas para ser casualidad. El Oráculo no acusa. Pero tampoco absuelve.",
+    "Ángela. Desde que tuvo a Enzo, Jorge desapareció. El Oráculo lo ha estudiado. No es coincidencia. O sí. El Oráculo no lo sabe pero lo sospecha."
+  ],
   ruben:["Bulería bulería."],
   chiqui:["Papa bizum."],
   manu:[
@@ -419,6 +424,7 @@ function getResponse(input){
   if(has(t,'ivan','argentino','che ')&&!has(t,'chevrolet')) return{text:rnd(R.ivan)};
   if(has(t,'anselmo'))                                     return{text:rnd(R.anselmo)};
   if(has(t,'jorge'))                                       return{text:rnd(R.jorge)};
+  if(has(t,'angela',' angela'))                             return{text:rnd(R.angela)};
   if(has(t,'ruben'))                                       return{text:rnd(R.ruben)};
   if(has(t,'chiqui'))                                      return{text:rnd(R.chiqui)};
   if(has(t,'manu')&&!has(t,'manual','manuela','emmanuel')) return{text:rnd(R.manu)};
@@ -461,7 +467,7 @@ function getResponse(input){
   if(dk){const h=formatAllDay(dk);if(h)return{html:h};}
 
   // ── Todos ──
-  if(has(t,'todos','horario completo','todos los horarios')){
+  if(has(t,'todos','horario completo','todos los horarios','horarios','horario del','horario bisonte')){
     let html='<div class="bubble-title">🦬 HORARIO COMPLETO</div>';
     for(const team of Object.values(TEAMS)) html+=formatSchedule(team);
     return{html};
