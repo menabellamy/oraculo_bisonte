@@ -345,6 +345,26 @@ const R={
     "¿Soncillo? El mejor pueblo de España. Punto. Y recuerda: Sábado 20, Marcha por la ELA en Soncillo. El Oráculo espera verte allí.",
     "Soncillo. El mejor pueblo de España y no hay más que hablar. Si no lo has visitado aún, estás perdiendo el tiempo. El Oráculo dixit."
   ],
+  hector:[
+    "Héctor. El Oráculo solo tiene una cosa que decirle: pásame el vaper.",
+    "¿Héctor? Pásame el vaper.",
+    "Héctor. Gran tipo. Una petición: pásame el vaper."
+  ],
+  ana:[
+    "Ana. Buena gente, de las buenas de verdad. El Oráculo lo certifica.",
+    "¿Ana? Buena gente. Sin más que añadir. El Oráculo.",
+    "Ana. Buena gente total. De las que no abundan. El Oráculo la tiene en alta estima."
+  ],
+  arriola:[
+    "Arriola. El Oráculo tiene información privilegiada: Vicen tiene sus zapatillas. Ahí lo deja.",
+    "¿Arriola? Vicen tiene sus zapatillas. El Oráculo no sabe más detalles pero los que hay son jugosos.",
+    "Arriola. Sus zapatillas están actualmente en posesión de Vicen. El Oráculo informa y no juzga."
+  ],
+  belen:[
+    "Belén. Canaria. Directamente de las islas al CrossFit cántabro. El Oráculo la respeta.",
+    "¿Belén? Canaria. El Oráculo le manda un saludo desde el norte con viento y lluvia. Que aprecie lo que tiene.",
+    "Belén. Canaria de pura cepa. Ha dejado el buen tiempo para venir a sufrir WODs con el resto. Eso tiene mucho mérito."
+  ],
   gili:[
     "GILIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII",
     "¿Raúl?"
@@ -429,6 +449,10 @@ function getResponse(input){
   if(has(t,'jorge'))                                       return{text:rnd(R.jorge)};
   if(has(t,'angela',' angela'))                             return{text:rnd(R.angela)};
   if(has(t,'nati','natalia'))                              return{text:"When I was... a young boy... my father... 🎸"};
+  if(has(t,'hector','héctor'))                             return{text:rnd(R.hector)};
+  if(hasWord(t,'ana')&&!has(t,'analit','analiz','canaria')) return{text:rnd(R.ana)};
+  if(has(t,'arriola'))                                     return{text:rnd(R.arriola)};
+  if(has(t,'belen','belén'))                               return{text:rnd(R.belen)};
   if(has(t,'ruben'))                                       return{text:rnd(R.ruben)};
   if(has(t,'chiqui'))                                      return{text:rnd(R.chiqui)};
   if(has(t,'manu')&&!has(t,'manual','manuela','emmanuel')) return{text:rnd(R.manu)};
