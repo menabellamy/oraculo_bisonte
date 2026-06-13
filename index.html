@@ -81,6 +81,45 @@ h1{font-family:'Bebas Neue',Impact,'Arial Black',sans-serif;font-size:1.8rem;let
 .b-now{background:#C4C000;color:#0A0805}
 .se-detail{font-size:.78rem;color:#7A6040}
 .se-team{font-size:.73rem;color:#5A4030;margin-top:2px}
+#competitor-tab{flex:1;display:none;flex-direction:column;overflow:hidden}
+#comp-team-select{padding:14px 14px 8px;flex-shrink:0;display:flex;flex-direction:column;gap:7px}
+.comp-select-title{color:#9A6030;font-size:.68rem;letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:3px;text-align:center}
+.comp-team-btn{background:#161008;border:1px solid #2A1608;color:#C0A070;padding:11px 14px;border-radius:12px;font-size:.88rem;cursor:pointer;font-family:inherit;font-weight:600;transition:all .15s;text-align:left}
+.comp-team-btn:hover,.comp-team-btn.active{border-color:#C4580A;color:#C4580A;background:#1C1008}
+#comp-team-select.collapsed{display:none}
+#comp-active-bar{align-items:center;gap:8px;padding:10px 14px;background:#1A1208;border-bottom:1px solid #2A1608;cursor:pointer;flex-shrink:0}
+#comp-active-name{color:#C4580A;font-weight:700;font-size:.92rem}
+.comp-change{margin-left:auto;color:#6A5030;font-size:.72rem;letter-spacing:1px}
+.comp-timeline{padding:8px 12px;background:#100C06;border-top:1px solid #1A1008}
+.tl-row{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:.8rem}
+.tl-dot{width:20px;text-align:center}
+.tl-label{color:#9A8060;flex:1}
+.tl-time{color:#C0A070;font-weight:600;font-variant-numeric:tabular-nums}
+.tl-start{margin-top:3px;padding-top:6px;border-top:1px dashed #2A1608}
+.tl-start .tl-label{color:#C4580A;font-weight:700;letter-spacing:.5px}
+.tl-start .tl-time{color:#C4580A;font-size:.92rem}
+.comp-brief-details{margin:0}
+.comp-brief-details summary{padding:9px 12px;cursor:pointer;color:#9A6030;font-size:.78rem;font-weight:600;background:#130E06;border-top:1px solid #1A1008;list-style:none;user-select:none}
+.comp-brief-details summary::-webkit-details-marker{display:none}
+.comp-brief-details[open] summary{color:#C4580A}
+#comp-detail{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 12px 12px}
+#comp-detail::-webkit-scrollbar{width:3px}
+#comp-detail::-webkit-scrollbar-thumb{background:#3A2010;border-radius:3px}
+.comp-hero{text-align:center;padding:10px 0 14px;border-bottom:1px solid #1E1008;margin-bottom:10px}
+.comp-hero-name{font-size:1.1rem;color:#E8C080;font-weight:700}
+.comp-hero-members{font-size:.74rem;color:#6A5030;margin-top:4px;font-style:italic}
+.comp-card{border-radius:12px;margin-bottom:10px;overflow:hidden;border:1px solid #221408}
+.comp-card.past{opacity:.5}
+.comp-card.now{border-color:#C4C000;border-left:3px solid #C4C000}
+.comp-card.next{border-color:#C4580A;border-left:3px solid #C4580A;box-shadow:0 0 18px rgba(196,88,10,.2)}
+.comp-card-head{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#1A1208;cursor:pointer}
+.comp-card-time{color:#C4580A;font-weight:700;font-size:.95rem;white-space:nowrap}
+.comp-card-wod{color:#E8C080;font-weight:600;font-size:.85rem}
+.comp-card-badge{font-size:.6rem;padding:2px 7px;border-radius:10px;font-weight:700;margin-left:auto;white-space:nowrap}
+.comp-card-loc{font-size:.78rem;color:#9A8060;padding:7px 12px;background:#130E06;display:flex;gap:14px;flex-wrap:wrap}
+.comp-card-loc b{color:#C4580A;font-weight:700}
+.comp-card-brief{padding:10px 12px;background:#0D0A06;border-top:1px solid #1A1008}
+.comp-countdown{font-size:.72rem;color:#C4C000;padding:5px 12px;background:#161806;font-weight:600}
 #curiosity{font-size:.63rem;color:#7A5530;margin-top:5px;min-height:1.1em;letter-spacing:1.5px;transition:opacity .6s ease;font-style:italic}
 </style>
 </head>
@@ -103,6 +142,7 @@ h1{font-family:'Bebas Neue',Impact,'Arial Black',sans-serif;font-size:1.8rem;let
   <div id="tabbar">
     <button class="tab active" data-tab="chat" onclick="switchTab('chat')">💬 Chat</button>
     <button class="tab" data-tab="schedule" onclick="switchTab('schedule')">📅 Horarios</button>
+    <button class="tab" data-tab="competitor" onclick="switchTab('competitor')">🎯 Mi Equipo</button>
   </div>
   <div id="chat-tab">
   <div id="messages"></div>
@@ -140,25 +180,70 @@ h1{font-family:'Bebas Neue',Impact,'Arial Black',sans-serif;font-size:1.8rem;let
     </div>
     <div id="schedule-list"></div>
   </div>
+  <div id="competitor-tab">
+    <div id="comp-team-select">
+      <div class="comp-select-title">🦬 Elige tu equipo</div>
+      <button class="comp-team-btn" onclick="setCompTeam('terneros')">🐂 Terneros del Bisonte</button>
+      <button class="comp-team-btn" onclick="setCompTeam('lastsecond')">⏱️ Last Second</button>
+      <button class="comp-team-btn" onclick="setCompTeam('cronosfit')">⚡ Cronosfit Team</button>
+      <button class="comp-team-btn" onclick="setCompTeam('adanes')">🍎 Adanes y Eva</button>
+      <button class="comp-team-btn" onclick="setCompTeam('probox')">📦 Pro-Box942</button>
+    </div>
+    <div id="comp-active-bar" style="display:none" onclick="expandCompSelect()">
+      <span id="comp-active-name"></span>
+      <span class="comp-change">cambiar ▾</span>
+    </div>
+    <div id="comp-detail"></div>
+  </div>
 </div>
 <script>
 // ── EQUIPOS ────────────────────────────────────────────────────────────────────
 const TEAMS={
   terneros:{emoji:'🐂',name:'TERNEROS DEL BISONTE',
     members:['Mario (no Macario)','Jesús','Moni','El Cuarto Misterioso 🤷'],
-    schedule:[['Vie 12','16:00-16:20','WODs 1+2','Pabellón','10'],['Sáb 13','09:06','WOD 3','Playa','2'],['Sáb 13','14:30-14:40','WOD 4','Pabellón','10'],['Sáb 13','18:15-18:23','WOD 5','Pabellón','10'],['Dom 14','09:00-09:08','WOD 6','Pabellón','2'],['Dom 14','12:45-12:53','WOD 7','Bolera','2']]},
+    schedule:[
+      ['Vie 12','16:00-16:20','WODs 1+2','Pabellón','10','15:11','15:31','15:51','15:56'],
+      ['Sáb 13','09:06','WOD 3','Playa','2','08:44','08:44','08:56','08:56'],
+      ['Sáb 13','14:30-14:40','WOD 4','Pabellón','10','14:01','14:11','14:21','14:26'],
+      ['Sáb 13','18:15-18:23','WOD 5','Pabellón','10','17:50','17:58','18:11','18:11'],
+      ['Dom 14','09:00-09:08','WOD 6','Pabellón','2','08:35','08:43','08:56','08:56'],
+      ['Dom 14','12:45-12:53','WOD 7','Bolera','2','12:20','12:28','12:41','12:41']]},
   lastsecond:{emoji:'⏱️',name:'LAST SECOND',
     members:['Dafu','Vicen','Bea','Jorge (si aparece 👻)'],
-    schedule:[['Vie 12','18:03-18:23','WODs 1+2','Pabellón','1'],['Sáb 13','10:32','WOD 3','Playa','2'],['Sáb 13','15:43-15:53','WOD 4','Pabellón','1'],['Sáb 13','19:18-19:26','WOD 5','Pabellón','1'],['Dom 14','09:36-09:44','WOD 7','Bolera','1'],['Dom 14','11:15-11:23','WOD 6','Pabellón','1']]},
+    schedule:[
+      ['Vie 12','18:03-18:23','WODs 1+2','Pabellón','1','17:14','17:34','17:54','17:59'],
+      ['Sáb 13','10:32','WOD 3','Playa','2','10:10','10:10','10:22','10:22'],
+      ['Sáb 13','15:43-15:53','WOD 4','Pabellón','1','15:14','15:24','15:34','15:39'],
+      ['Sáb 13','19:18-19:26','WOD 5','Pabellón','1','18:53','19:01','19:14','19:14'],
+      ['Dom 14','09:36-09:44','WOD 7','Bolera','1','09:11','09:19','09:32','09:32'],
+      ['Dom 14','11:15-11:23','WOD 6','Pabellón','1','10:50','10:58','11:11','11:11']]},
   cronosfit:{emoji:'⚡',name:'CRONOSFIT TEAM',
     members:['Lu','Gonzalo','Lucas','Cronosfit (sí, la persona)'],
-    schedule:[['Vie 12','19:15-19:35','WODs 1+2','Pabellón','8'],['Sáb 13','11:12','WOD 3','Playa','2'],['Sáb 13','16:25-16:35','WOD 4','Pabellón','8'],['Sáb 13','19:54-20:02','WOD 5','Pabellón','8'],['Dom 14','10:36-10:44','WOD 7','Bolera','1'],['Dom 14','12:15-12:23','WOD 6','Pabellón','1']]},
+    schedule:[
+      ['Vie 12','19:15-19:35','WODs 1+2','Pabellón','8','18:26','18:46','19:06','19:11'],
+      ['Sáb 13','11:12','WOD 3','Playa','2','10:50','10:50','11:02','11:02'],
+      ['Sáb 13','16:25-16:35','WOD 4','Pabellón','8','15:56','16:06','16:16','16:21'],
+      ['Sáb 13','19:54-20:02','WOD 5','Pabellón','8','19:29','19:37','19:50','19:50'],
+      ['Dom 14','10:36-10:44','WOD 7','Bolera','1','10:11','10:19','10:32','10:32'],
+      ['Dom 14','12:15-12:23','WOD 6','Pabellón','1','11:50','11:58','12:11','12:11']]},
   adanes:{emoji:'🍎',name:'ADANES Y EVA',
     members:['DQ Álvaro ⚠️','Patri','Raúl','Julio'],
-    schedule:[['Vie 12','21:00-21:20','WODs 1+2','Pabellón','16'],['Sáb 13','12:06','WOD 3','Playa','2'],['Sáb 13','17:30-17:40','WOD 4','Pabellón','16'],['Sáb 13','20:51-20:59','WOD 5','Pabellón','16'],['Dom 14','12:18-12:26','WOD 7','Bolera','8'],['Dom 14','13:57-14:05','WOD 6','Pabellón','8']]},
+    schedule:[
+      ['Vie 12','21:00-21:20','WODs 1+2','Pabellón','16','20:11','20:31','20:51','20:56'],
+      ['Sáb 13','12:06','WOD 3','Playa','2','11:44','11:44','11:56','11:56'],
+      ['Sáb 13','17:30-17:40','WOD 4','Pabellón','16','17:01','17:11','17:21','17:26'],
+      ['Sáb 13','20:51-20:59','WOD 5','Pabellón','16','20:26','20:34','20:42','20:47'],
+      ['Dom 14','12:18-12:26','WOD 7','Bolera','8','11:53','12:01','12:09','12:14'],
+      ['Dom 14','13:57-14:05','WOD 6','Pabellón','8','13:32','13:40','13:48','13:53']]},
   probox:{emoji:'📦',name:'PRO-BOX942',
     members:['🕵️ Clasificado','🕵️ Clasificado','🕵️ Clasificado','👻 ¿Jorge?'],
-    schedule:[['Vie 12','21:00-21:20','WODs 1+2','Pabellón','11'],['Sáb 13','12:10','WOD 3','Playa','1'],['Sáb 13','17:30-17:40','WOD 4','Pabellón','11'],['Sáb 13','20:51-20:59','WOD 5','Pabellón','11'],['Dom 14','12:18-12:26','WOD 7','Bolera','3'],['Dom 14','13:57-14:05','WOD 6','Pabellón','3']]}
+    schedule:[
+      ['Vie 12','21:00-21:20','WODs 1+2','Pabellón','11','20:11','20:31','20:51','20:56'],
+      ['Sáb 13','12:10','WOD 3','Playa','1','11:48','11:48','12:00','12:00'],
+      ['Sáb 13','17:30-17:40','WOD 4','Pabellón','11','17:01','17:11','17:21','17:26'],
+      ['Sáb 13','20:51-20:59','WOD 5','Pabellón','11','20:26','20:34','20:42','20:47'],
+      ['Dom 14','12:18-12:26','WOD 7','Bolera','3','11:53','12:01','12:09','12:14'],
+      ['Dom 14','13:57-14:05','WOD 6','Pabellón','3','13:32','13:40','13:48','13:53']]}
 };
 
 // ── WODS ───────────────────────────────────────────────────────────────────────
@@ -712,8 +797,10 @@ addMsg('🦬 Aquí el Oráculo del Bisonte. Sé los horarios, los WODs y conozco
 function switchTab(tab){
   document.getElementById('chat-tab').style.display=tab==='chat'?'flex':'none';
   document.getElementById('schedule-tab').style.display=tab==='schedule'?'flex':'none';
+  document.getElementById('competitor-tab').style.display=tab==='competitor'?'flex':'none';
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
   if(tab==='schedule') renderSchedule();
+  if(tab==='competitor'&&compTeam) renderCompetitor();
 }
 
 // ── HORARIOS ─────────────────────────────────────────────────────────────────
@@ -722,13 +809,15 @@ const DAY_LABELS={'Vie 12':'VIERNES 12 JUNIO','Sáb 13':'SÁBADO 13 JUNIO','Dom 
 
 const ALL_SLOTS=[];
 for(const[key,team]of Object.entries(TEAMS)){
-  for(const[day,time,wod,area,lane]of team.schedule){
+  for(const row of team.schedule){
+    const[day,time,wod,area,lane,brief,calent,corrales,pista]=row;
     const ds=DATE_MAP[day];
     const ts=time.includes('-')?time.split('-')[0]:time;
     const te=time.includes('-')?time.split('-')[1]:null;
     const startDt=new Date(ds+'T'+ts+':00');
     const endDt=te?new Date(ds+'T'+te+':00'):new Date(startDt.getTime()+90*60*1000);
-    ALL_SLOTS.push({teamKey:key,team,day,time,wod,area,lane,startDt,endDt});
+    let wodNums=[];const m=wod.match(/\d+/g);if(m)wodNums=m.map(Number);
+    ALL_SLOTS.push({teamKey:key,team,day,time,wod,area,lane,brief,calent,corrales,pista,startDt,endDt,wodNums});
   }
 }
 ALL_SLOTS.sort((a,b)=>a.startDt-b.startDt);
@@ -796,6 +885,94 @@ function renderSchedule(){
     },150);
   }
 }
+
+// ── COMPETIDOR ───────────────────────────────────────────────────────────────
+let compTeam=null;
+
+function setCompTeam(key){
+  compTeam=key;
+  document.querySelectorAll('.comp-team-btn').forEach(b=>b.classList.remove('active'));
+  // Colapsar el selector y mostrar barra compacta
+  document.getElementById('comp-team-select').classList.add('collapsed');
+  document.getElementById('comp-active-bar').style.display='flex';
+  const t=TEAMS[key];
+  document.getElementById('comp-active-name').textContent=t.emoji+' '+t.name;
+  renderCompetitor();
+}
+function expandCompSelect(){
+  document.getElementById('comp-team-select').classList.remove('collapsed');
+  document.getElementById('comp-active-bar').style.display='none';
+}
+
+function fmtCountdown(ms){
+  const min=Math.floor(ms/60000);
+  if(min<1) return 'en menos de 1 min';
+  if(min<60) return `en ${min} min`;
+  const h=Math.floor(min/60), m=min%60;
+  return `en ${h}h ${m}min`;
+}
+
+function renderCompetitor(){
+  if(!compTeam) return;
+  const now=new Date();
+  const team=TEAMS[compTeam];
+  const slots=ALL_SLOTS.filter(s=>s.teamKey===compTeam);
+
+  let nextIdx=-1;
+  for(let i=0;i<slots.length;i++){ if(slots[i].startDt>now){nextIdx=i;break;} }
+
+  let html='';
+  slots.forEach((s,i)=>{
+    const isPast=now>s.endDt;
+    const isNow=now>=s.startDt&&now<=s.endDt;
+    const isNext=i===nextIdx;
+    let cls='comp-card ', badge='';
+    if(isPast){cls+='past';badge='<span class="comp-card-badge b-past">✓ Hecho</span>';}
+    else if(isNow){cls+='now';badge='<span class="comp-card-badge b-now">⚡ AHORA</span>';}
+    else if(isNext){cls+='next';badge='<span class="comp-card-badge b-next">▶ SIGUIENTE</span>';}
+
+    let brief='';
+    if(s.wodNums.length){
+      brief=s.wodNums.map(n=>WODS[n]||'').join('<hr style="border-color:#2A1608;margin:8px 0">');
+    }
+
+    let countdown='';
+    if(isNext){ countdown=`<div class="comp-countdown">⏱️ Próximo hito: briefing ${fmtCountdown(parseHM(s.day,s.brief)-now)} · salida del WOD ${fmtCountdown(s.startDt-now)}</div>`; }
+
+    // Línea de tiempo de preparación
+    const timeline=`<div class="comp-timeline">
+      <div class="tl-row"><span class="tl-dot">🗣️</span><span class="tl-label">Briefing</span><span class="tl-time">${s.brief}</span></div>
+      <div class="tl-row"><span class="tl-dot">🔥</span><span class="tl-label">Calentamiento</span><span class="tl-time">${s.calent}</span></div>
+      <div class="tl-row"><span class="tl-dot">🚧</span><span class="tl-label">Corrales</span><span class="tl-time">${s.corrales}</span></div>
+      <div class="tl-row"><span class="tl-dot">📍</span><span class="tl-label">A pista</span><span class="tl-time">${s.pista}</span></div>
+      <div class="tl-row tl-start"><span class="tl-dot">🏁</span><span class="tl-label">SALIDA WOD</span><span class="tl-time">${s.time}</span></div>
+    </div>`;
+
+    html+=`<div class="${cls}">
+      <div class="comp-card-head">
+        <span class="comp-card-time">${s.time}</span>
+        <span class="comp-card-wod">${s.wod}</span>
+        ${badge}
+      </div>
+      <div class="comp-card-loc"><span>${AREA_ICON[s.area]||'📍'} <b>${s.area}</b></span><span>🏁 Calle <b>${s.lane}</b></span><span>📅 ${s.day}</span></div>
+      ${countdown}
+      ${timeline}
+      ${brief?`<details class="comp-brief-details"><summary>📋 Ver briefing del WOD</summary><div class="comp-card-brief">${brief}</div></details>`:''}
+    </div>`;
+  });
+
+  const det=document.getElementById('comp-detail');
+  det.innerHTML=html;
+  if(nextIdx>=0){ setTimeout(()=>{const el=det.querySelector('.next');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},150); }
+}
+
+function parseHM(day,hm){ return new Date(DATE_MAP[day]+'T'+hm+':00'); }
+
+// Refrescar cada minuto las vistas en directo
+setInterval(()=>{
+  if(document.getElementById('competitor-tab').style.display!=='none'&&compTeam) renderCompetitor();
+  if(document.getElementById('schedule-tab').style.display!=='none') renderSchedule();
+},60000);
 
 // ── CURIOSIDADES ROTATORIAS ─────────────────────────────────────────────────
 const CURIOSITIES=[
