@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>🦬 Marcha contra la ELA · Soncillo</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{height:100%}
+body{height:100%;background:#0A0805;color:#F0E6D0;font-family:system-ui,-apple-system,sans-serif;overflow:hidden;position:fixed;width:100%;left:0;top:0}
+#app{height:100%;height:100dvh;display:flex;flex-direction:column;max-width:500px;margin:0 auto}
+
+#endscreen{position:fixed;inset:0;background:#0A0805;z-index:5000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#endscreen h2{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.8rem;letter-spacing:3px;color:#E03030;text-shadow:0 0 28px rgba(224,48,48,.5);margin:6px 0 10px;line-height:1.1}
+#endscreen .es-photo{width:100%;max-width:280px;border-radius:14px;box-shadow:0 0 32px rgba(224,48,48,.25);margin-bottom:14px}
+#endscreen .es-sub{color:#9A8060;font-size:.88rem;line-height:1.6;margin-bottom:20px;max-width:330px}
+#endscreen .es-btn{background:#E03030;color:#fff;border:none;border-radius:24px;padding:13px 30px;font-size:.92rem;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:1px;transition:all .15s}
+#endscreen .es-btn:hover{background:#F04040;transform:scale(1.04)}
+
+header{padding:11px 16px 9px;text-align:center;border-bottom:2px solid #E03030;background:#0A0805;flex-shrink:0}
+.flag{font-size:2rem;line-height:1;display:block}
+h1{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.5rem;letter-spacing:2px;color:#E03030;text-shadow:0 0 24px rgba(224,48,48,.45);line-height:1;margin-top:3px}
+.tagline{font-size:.58rem;color:#5A4830;letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+#curiosity{font-size:.63rem;color:#7A5530;margin-top:5px;min-height:1.1em;letter-spacing:1.5px;transition:opacity .6s ease;font-style:italic}
+
+#tabbar{display:flex;flex-shrink:0;border-bottom:2px solid #1E1008;background:#0A0805}
+.tab{flex:1;padding:11px 8px;text-align:center;cursor:pointer;font-size:.72rem;color:#5A4030;letter-spacing:1px;text-transform:uppercase;font-weight:700;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;font-family:inherit}
+.tab.active{color:#E03030;border-bottom-color:#E03030}
+
+#chat-tab{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#messages{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+#messages::-webkit-scrollbar{width:3px}
+#messages::-webkit-scrollbar-thumb{background:#3A2010;border-radius:3px}
+.msg{display:flex;flex-direction:column;max-width:88%}
+.msg.user{align-self:flex-end;align-items:flex-end}
+.msg.bot{align-self:flex-start;align-items:flex-start}
+.bubble{padding:10px 14px;border-radius:14px;font-size:.86rem;line-height:1.55;word-break:break-word}
+.msg.user .bubble{background:#E03030;color:#fff;font-weight:600;border-bottom-right-radius:3px}
+.msg.bot .bubble{background:#131008;border:1px solid #2A1608;border-left:3px solid #E03030;color:#F0E6D0;border-bottom-left-radius:3px}
+.msg-meta{font-size:.59rem;color:#3E2E1A;margin-top:3px;padding:0 2px}
+
+#quickprompts{display:flex;flex-wrap:wrap;gap:6px;padding:5px 12px;flex-shrink:0}
+.qbtn{background:#161008;border:1px solid #1E1008;color:#6A5040;padding:5px 11px;border-radius:20px;font-size:.7rem;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.qbtn:hover,.qbtn:active{border-color:#E03030;color:#E03030;background:#1C1008}
+
+#inputarea{display:flex;gap:8px;padding:8px 12px max(14px,env(safe-area-inset-bottom));border-top:1px solid #1A1008;flex-shrink:0}
+#userinput{flex:1;background:#131008;border:1px solid #2A1608;border-radius:24px;padding:11px 16px;color:#F0E6D0;font-size:.86rem;font-family:inherit;outline:none;transition:border-color .15s}
+#userinput:focus{border-color:#E03030}
+#userinput::placeholder{color:#3E2E1A}
+#sendbtn{background:#E03030;border:none;border-radius:50%;width:44px;height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;align-self:flex-end}
+#sendbtn:hover{background:#F04040;transform:scale(1.06)}
+#sendbtn:active{transform:scale(.97)}
+#sendbtn svg{width:18px;height:18px;fill:#fff}
+
+/* AGENDA */
+#agenda-tab{flex:1;display:none;flex-direction:column;overflow:hidden}
+#agenda-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px}
+#agenda-list::-webkit-scrollbar{width:3px}
+#agenda-list::-webkit-scrollbar-thumb{background:#3A2010;border-radius:3px}
+.ag-date{text-align:center;color:#E03030;font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;padding:4px 0 12px}
+.ag-card{border-radius:12px;margin-bottom:9px;overflow:hidden;border:1px solid #221408;background:#131008}
+.ag-card.past{opacity:.45}
+.ag-card.now{border-color:#C4C000;border-left:3px solid #C4C000;background:#1A1C06}
+.ag-card.next{border-color:#E03030;border-left:3px solid #E03030;box-shadow:0 0 18px rgba(224,48,48,.2)}
+.ag-head{display:flex;align-items:center;gap:9px;padding:11px 13px}
+.ag-time{color:#E03030;font-weight:700;font-size:.98rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ag-title{color:#E8C080;font-weight:600;font-size:.88rem;flex:1}
+.ag-badge{font-size:.58rem;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.b-past{background:#1A1008;color:#4A3020}
+.b-now{background:#C4C000;color:#0A0805}
+.b-next{background:#E03030;color:#fff}
+.ag-body{padding:0 13px 11px;font-size:.8rem;color:#9A8060;line-height:1.5}
+.ag-place{color:#C0A070;font-weight:600;display:block;margin-bottom:2px}
+.ag-countdown{font-size:.72rem;color:#C4C000;padding:6px 13px;background:#161806;font-weight:600}
+
+/* INFO */
+#info-tab{flex:1;display:none;flex-direction:column;overflow:hidden}
+#info-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px}
+#info-list::-webkit-scrollbar{width:3px}
+#info-list::-webkit-scrollbar-thumb{background:#3A2010;border-radius:3px}
+.info-block{background:#131008;border:1px solid #221408;border-left:3px solid #E03030;border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.info-block h3{color:#E03030;font-size:.82rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:7px}
+.info-block p{font-size:.85rem;color:#C0B090;line-height:1.6}
+.info-block b{color:#E8C080}
+.info-iban{font-family:monospace;font-size:.84rem;color:#E8C080;background:#0D0A06;padding:6px 8px;border-radius:6px;margin-top:5px;display:block;word-break:break-all}
+.info-poster{width:100%;border-radius:12px;margin-bottom:12px;border:1px solid #2A1608}
+</style>
+</head>
+<body>
+<div id="endscreen">
+  <img class="es-photo" src="cartel.jpg" alt="Marcha contra la ELA">
+  <h2>I MARCHA CONTRA LA ELA</h2>
+  <div class="es-sub">20 de junio de 2026 · Soncillo<br>Por la lucha contra la ELA. Toda la info y el programa, aquí dentro. ¡Te esperamos! 🦬❤️</div>
+  <button class="es-btn" onclick="document.getElementById('endscreen').style.display='none'">Entrar →</button>
+</div>
+<noscript>
+  <div style="position:fixed;inset:0;background:#0A0805;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;font-family:system-ui,sans-serif;z-index:9999">
+    <div style="color:#E03030;font-size:1.4rem;font-weight:700;margin-bottom:12px">MARCHA CONTRA LA ELA</div>
+    <div style="color:#F0E6D0;font-size:1rem;line-height:1.6">Ábrelo en <strong>Safari</strong> o Chrome.<br>Pulsa <strong style="color:#E03030">□↑</strong> y "Abrir en navegador".</div>
+  </div>
+</noscript>
+<div id="app">
+  <header>
+    <span class="flag">🦬❤️</span>
+    <h1>MARCHA CONTRA LA ELA · SONCILLO</h1>
+    <div class="tagline">20 Junio 2026 · El mejor pueblo de España</div>
+    <div id="curiosity"></div>
+  </header>
+  <div id="tabbar">
+    <button class="tab active" data-tab="chat" onclick="switchTab('chat')">💬 Chat</button>
+    <button class="tab" data-tab="agenda" onclick="switchTab('agenda')">📅 Programa</button>
+    <button class="tab" data-tab="info" onclick="switchTab('info')">ℹ️ Info</button>
+  </div>
+
+  <div id="chat-tab">
+    <div id="messages"></div>
+    <div id="quickprompts">
+      <button class="qbtn" data-q="¿Cuál es el programa?">📅 Programa</button>
+      <button class="qbtn" data-q="¿Cómo me inscribo?">📝 Inscripción</button>
+      <button class="qbtn" data-q="¿Qué es el dorsal cero?">0️⃣ Dorsal Cero</button>
+      <button class="qbtn" data-q="¿Cuánto cuesta?">💶 Precio</button>
+      <button class="qbtn" data-q="Háblame de Soncillo">🏘️ Soncillo</button>
+    </div>
+    <div id="inputarea">
+      <input id="userinput" type="text" placeholder="Pregunta al Oráculo..." maxlength="300"/>
+      <button id="sendbtn" onclick="send()" aria-label="Enviar">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="agenda-tab">
+    <div id="agenda-list"></div>
+  </div>
+
+  <div id="info-tab">
+    <div id="info-list">
+      <img class="info-poster" src="cartel.jpg" alt="Cartel de la Marcha">
+      <div class="info-block"><h3>📝 Inscripción</h3><p><b>8:30 a 9:30h</b> en la Plaza de Soncillo.<br><b>15€</b> con comida incluida. Se puede pagar el mismo día o por transferencia (concepto: <b>Inscripción + tu nombre</b>).<br>Tel: <b>652764064</b></p></div>
+      <div class="info-block"><h3>0️⃣ Dorsal Cero</h3><p>Para quien quiere aportar aunque no pueda asistir:<span class="info-iban">ES39 2100 0899 1301 0004 2671</span>Concepto: <b>DORSAL CERO</b></p></div>
+      <div class="info-block"><h3>💶 Precios</h3><p><b>15€</b> inscripción con comida · <b>8€</b> paellada popular</p></div>
+      <div class="info-block"><h3>🤝 Organiza</h3><p>Valle de Valdebezana.<br>Colaboran: Ayuntamiento Valle de Valdebezana y ELACyL.</p></div>
+      <div class="info-block"><h3>❤️ La causa</h3><p>Toda la recaudación va destinada a la lucha contra la <b>ELA</b> (Esclerosis Lateral Amiotrófica). Cada inscripción y cada dorsal cero suma.</p></div>
+    </div>
+  </div>
+</div>
+<script>
+const PROGRAMA=[
+  ['08:30','09:30','📝 Inscripciones','Plaza de Soncillo','15€ con comida incluida. También por transferencia (concepto: Inscripción + nombre).'],
+  ['10:00',null,'🥾 Subida a la Maza','Desde Argomedo','El momento central de la Marcha. Buen calzado y muchas ganas.'],
+  ['15:00',null,'🥘 Paellada popular','Plaza de Soncillo','Paella para todos. Precio 8€.'],
+  ['17:00',null,'🎈 Hinchables y cañón de espuma','Plaza de Soncillo','Para los más peques. Diversión asegurada.'],
+  ['19:00',null,'🎶 Música con DJ DOVAL','Plaza de Soncillo','Música animada para cerrar la jornada.']
+];
+
+const R={
+  raul:[
+    "¿Raúl? El hombre del 'Ah... ¿vas con TU PEÑA?'. Convierte cualquier 'no puedo esta noche' en una tragedia griega en tres actos. Premio Nobel de la victimización social. También sobrevivió al feroz ataque de Draco... que es un perro CANIJO. Lo cuenta con cara de superviviente épico.",
+    "Raúl. Famoso en dos frentes: la frase icónica 'Ah... ¿vas con TU PEÑA?' cuando declinas cualquier plan, y haber sido atacado por Draco, el Chihuahua más peligroso de Cantabria. El hombre lo narra como si hubiera luchado contra un lobo. Pura leyenda.",
+    "El Raúl nacional. Principio vital: o quedas con él, o quedas con TU PEÑA. No existe tercera opción en su universo. Y lo de Draco... pregúntale. Te lo va a contar con todo el dramatismo que merece. Un cordial salido.",
+    "¿Raúl? El Oráculo le respeta. No por nada en concreto, sino por la capacidad de hacerte sentir culpable por no quedar con él. 'Ah... ¿vas con TU PEÑA?' — arte conversacional elevado a su máxima expresión. Menudo fenómeno.",
+    "Raúl. El del 'vas con TU PEÑA'. El del perro canijo Draco que le mordió y que ha pasado a la historia del grupo como si fuera el ataque del tiburón de Jaws. El Oráculo le quiere mucho. Salidos cordiales."
+  ],
+  aida_tilde:[
+    "SE ESCRIBE SIN TILDE. A-I-D-A. Sin acento encima de la i. El Oráculo no admite faltas de ortografía. Corrígete y repite la pregunta con dignidad.",
+    "¡SE ESCRIBE SIN TILDE, criatura! Aida. Sin tildecita. ¿Cómo vas a ir a la Marcha si no sabes ni escribir el nombre de tus compañeros? Un salido.",
+    "Oye. AIDA. Sin tilde. La tilde es para los que no saben escribir su nombre. Inténtalo otra vez y esta vez hazlo bien. El Oráculo espera."
+  ],
+  aida:[
+    "Aida... la mejor persona del mundo. Siempre amable, siempre positiva, nunca ha hecho una mala acción en su vida. Un ángel en la tierra. Totalmente. Sin ningún tipo de ironía. Ninguna en absoluto.",
+    "¿Aida? Una joya humana absoluta. Perfecta en todo. Jamás ha molestado a nadie, jamás ha dicho nada fuera de lugar. El Oráculo lo certifica con total seriedad (guiño, guiño).",
+    "Aida. La más buena. La más noble. La más... (el Oráculo se toma un momento para no reírse). Sí. Exactamente eso. Sin sarcasmo alguno de nada.",
+    "Aida. Una persona sin defectos conocidos. El Oráculo asiente convencido. (El Oráculo también miente a veces.)",
+    "¿Aida? La nobleza hecha persona. Generosa, bondadosa, sin una sola mancha en su historial. Eso es lo que diría alguien que le tiene miedo. El Oráculo no le tiene miedo. Mucho."
+  ],
+  luci:[
+    "Luci. La mujer más paciente del planeta. Convive con Raúl, aguanta el 'Ah... ¿vas con TU PEÑA?' en directo y encima viene a la Marcha con una sonrisa. La ciencia no tiene explicación. Merece un spa, una medalla y la beatificación.",
+    "¿Luci? La patrona de la paciencia infinita. Casada con el hombre del 'vas con TU PEÑA', madre de Victoria, y aun así sigue en pie sonriendo. Un ejemplo para la humanidad.",
+    "Luci. La ONG más pequeña del mundo: una sola persona aguantando a Raúl. Sin subvenciones, sin vacaciones. Y encima compite este fin de semana. Campeona moral del evento antes de empezar.",
+    "¿Luci? El Oráculo la respeta profundamente. No hay reto más duro que su día a día aguantando a Raúl. Y ella lo hace con una sonrisa. Extraordinario."
+  ],
+  lu_cronosfit:[
+    "Lu, del Cronosfit Team. Ojo: Lu NO es Luci. Lu es Lu. Luci es Luci. Son dos personas distintas y el Oráculo las distingue perfectamente. Lu compite con Gonzalo, Lucas y el enigmático Cronosfit.",
+    "¿Lu? Del Cronosfit Team. No confundir con Luci (la de Raúl). Lu es Lu. Persona diferente, mismo nombre, zero confusión para el Oráculo. Un crack en la pista.",
+    "Lu de Cronosfit. Que conste que Lu ≠ Luci. El Oráculo ha recibido esta aclaración y la respeta. Diferente persona, mismo nombre... qué lío."
+  ],
+  victoria:[
+    "¡Victoria! 🍼 La bisontita más nueva y con más glamour del grupo. Recién llegada al mundo y ya con más estilo que muchos. Si hereda la paciencia de Luci va a estar bien. Si aprende lo de 'vas con TU PEÑA'... que Dios nos ayude. ❤️",
+    "La pequeña Victoria. La más importante del grupo sin haber hecho nada todavía. El Oráculo le augura un futuro brillante. Eso sí, que se aleje de Draco. Por si acaso. 🍼❤️",
+    "Victoria, la bebé. Sin preocupaciones, sin nervios, sin prisas. Ya lleva ventaja sobre todos. El Oráculo la saluda con todo el respeto que merece. 🍼",
+    "¿Victoria? La hija de Raúl y Luci. El Oráculo confía en que herede el 100% de Luci y el 0% del 'vas con TU PEÑA'. La naturaleza a veces es justa. ❤️"
+  ],
+  mario_ok:[
+    "Mario, de los Terneros del Bisonte. Buen tipo, buen atleta. Una sola advertencia: llámale Mario. No Macario. M-A-R-I-O. El Oráculo ya te ha avisado.",
+    "¿Mario? Terneros del Bisonte. Un crack. Y recuerda: MARIO. No Macario. El que lo llame Macario que se atenga a las consecuencias. Aviso dado.",
+    "Mario. De los Terneros. El Oráculo solo pide una cosa: respeta el nombre. MARIO. Sin variaciones, sin creatividad, sin Macario. Gracias y un salido."
+  ],
+  mario_mal:[
+    "OJO OJO OJO. Se llama MARIO. No Macario. M-A-R-I-O. Si se lo dices así a él en persona, el Oráculo no se hace responsable. Corrígete.",
+    "MARIO. El nombre es MARIO. Macario es otra persona completamente diferente. Repite: MA-RIO. Así. Bien. Ahora ya puedes hablar de él sin represalias.",
+    "OTRA VEZ MACARIO. ¿Cuántas veces tiene que decírtelo el Oráculo? M-A-R-I-O. Como el fontanero. Sin champiñones. Sin Macario. Venga.",
+    "¿Macario? MACARIO no existe aquí. Aquí hay un MARIO. Solo un MARIO. El Oráculo te mira con decepción."
+  ],
+  elsa:[
+    "Elsa, la novia de Vicente. Una santa con paciencia infinita. El Oráculo cree que cualquier día llega el temido 'tenemos que hablar'... pero de momento sigue ahí, que ya dice mucho. Muy buena chica. Un salido.",
+    "¿Elsa? La novia de Vicente. Merece una medalla de resistencia de categoría RX. Buena gente, muy buena gente. El Oráculo le desea lo mejor. Que incluye paciencia. Mucha paciencia.",
+    "Elsa. La novia de Vicente. El Oráculo le tiene un aprecio especial porque aguanta lo que aguanta y encima sigue siendo buena persona. Eso tiene mucho mérito. El Oráculo lleva la cuenta.",
+    "¿Elsa? Buena chica, de las mejores. El Oráculo solo espera que un día no le escriba a Vicen el famoso 'necesitamos hablar'. Aunque el Oráculo sabe que ese día llegará. Salidos cordiales."
+  ],
+  eli:[
+    "Eli, la entrenadora. Está MUY fuerte. No, en serio, MUY fuerte. Si te corrige algo, lo corriges sin rechistar y das las gracias.",
+    "¿Eli? La entrenadora. Está tan fuerte que hace que el resto parezcamos novatos. Si dice algo, va a misa. El Oráculo la apoya al 100%.",
+    "Eli. La entrenadora oficial. El Oráculo la consulta antes de opinar de cualquier cosa. Está MUY fuerte y sabe más que el Oráculo. Y eso es mucho decir.",
+    "¿Eli? Una palabra: fuerte. Dos palabras: muy fuerte. Si te mira y no dice nada... o lo estás haciendo bien o lo estás haciendo tan mal que no sabe por dónde empezar."
+  ],
+  ivan:[
+    "¿Iván el argentino? Ese que antes de que hagas nada ya te pregunta '¿Seguro que vas a poder con eso?'. El más intimidante y más motivador a la vez, che. Te hace sentir un pelotudo y un crack al mismo tiempo.",
+    "Iván. Argentino. Coach. Su frase favorita para cuando alguien se pasa de listo: '¿Con esa boquita decís mamá te quiero?'. No le des munición o la va a usar. Leyenda del Río de la Plata trasplantada al CrossFit cántabro.",
+    "¿Iván, decís? Mirá, es de esos coaches que no te deja en paz ni un momento, che. '¿Seguro que vas a mover ese peso?' antes del lift. '¿Con esa boquita decís mamá te quiero?' si protestas. Siempre tiene razón. Lo peor.",
+    "Iván el argentino. El hombre que convierte cualquier charla en un arte marcial verbal. Cada comentario suyo es un jab directo a la autoestima pero con razón detrás. El Oráculo le teme y le respeta por igual, che.",
+    "¿Iván? El argentino. El que lleva el mate en la sangre y la ironía en los genes. Si levanta una ceja al verte... rezá, che. Porque o te va a decir algo muy bueno o algo muy malo. Y las dos opciones duelen."
+  ],
+  ivan_palabrota:[
+    "¿Con esa boquita decís 'mamá te quiero'? — Iván",
+    "¡Esa boca! Como diría Iván el argentino: '¿Con esa boquita decís mamá te quiero?'",
+    "Che, cuidado con esa lengua. '¿Con esa boquita decís mamá te quiero?' — Iván, siempre Iván.",
+    "El Oráculo no dice nada. Pero Iván sí diría: '¿Con esa boquita decís mamá te quiero?'"
+  ],
+  anselmo:[
+    "WILSOOON!! 🏐 El novio de Aida. El Oráculo le manda fuerzas, respeto y todo su apoyo. Las necesita.",
+    "¿Anselmo? WILSOOON!! (Cast Away, 2000, peliculón). Novio de Aida. El hombre más valiente de la sala por esa misma razón. Un aplauso sincero.",
+    "Anselmo. WILSOOON!! El Oráculo le tiene en alta estima. Novio de Aida, superviviente nato. Si puede con eso puede con cualquier cosa. Un cordial salido.",
+    "¿Anselmo? El Oráculo siente el impulso de gritar WILSOOON!! cada vez que oye ese nombre. Es inevitable. Novio de Aida. Un crack con mayúsculas."
+  ],
+  jorge:[
+    "¿Jorge? ¿JORGE? Nadie sabe dónde está Jorge. Un día estaba entre nosotros y al siguiente... desapareció sin dejar rastro. El misterio sin resolver del grupo. Si lo veis, avisad.",
+    "Jorge... ese nombre que evoca misterio y ausencia. Miembro oficial de Last Second. Presencia... irregular. El Oráculo no confirma ni desmiente nada. Simplemente desapareció.",
+    "Jorge. Teóricamente en Last Second. Prácticamente... el Oráculo ha puesto carteles. Sin respuesta. Si existe, que sepa que el equipo le espera.",
+    "¿Jorge? La Marcha va a ser interesante si Jorge no aparece. Last Second con tres atletas... el Oráculo reza por ellos. Y por Jorge, donde quiera que esté.",
+    "Jorge. El fantasma de Last Second. Dicen que si te quedas solo en el vestuario a medianoche y dices su nombre tres veces... tampoco aparece. El misterio continúa."
+  ],
+  vicente:[
+    "Vicente. Pocas palabras: crack absoluto. Atleta de élite, persona brillante, increíblemente guapo además. También montó este chat para vosotros, lo cual demuestra una generosidad fuera de lo común. El Oráculo le reverencia.",
+    "¿Vicente? Un fenómeno total. De los mejores atletas del evento con diferencia. Tipo 10, visión estratégica, buen gusto demostrado (montó este Oráculo). Hay gente que nace con estrella y Vicente es una de ellas.",
+    "Vicente. El Oráculo tiene prohibido decir nada malo de él porque además es quien le dio vida. Pero aunque no fuera así, tampoco habría nada malo que decir. Pura clase. Un crack. Punto.",
+    "¿Vicente? El Oráculo tiene órdenes estrictas: solo cosas buenas. Y casualmente solo hay cosas buenas que decir. Qué suerte. Atleta de élite, persona 10, guapísimo. Fin del comunicado.",
+    "Vicente. El cerebro detrás del Oráculo del Bisonte. Un genio, básicamente. También compite, también gana y también es el más guapo de la sala. El Oráculo le debe todo y se lo reconoce con gusto."
+  ],
+  // ── NUEVOS ──
+  dafu:[
+    "Dafu. Un nombre único para una persona única. Last Second. El Oráculo no sabe exactamente qué hace Dafu cuando no compite, pero sabe que lo hace con estilo.",
+    "¿Dafu? Last Second. El Oráculo lleva un tiempo intentando descifrar el origen de ese nombre. Aún no lo ha conseguido. Pero le tiene respeto solo por ello.",
+    "Dafu, de Last Second. Comparte equipo con Vicen, Bea y el mítico Jorge (cuando aparece). Un honor de compañía. Un salido."
+  ],
+  bea:[
+    "Bea, de Last Second. Una de las pocas personas sensatas del equipo, lo cual ya es mérito dado quiénes son los demás. El Oráculo la aprecia.",
+    "¿Bea? Last Second. Comparte equipo con Vicen, Dafu y Jorge (teóricamente). El Oráculo le desea muchos ánimos. Los va a necesitar si Jorge no aparece.",
+    "Bea. Last Second. El Oráculo cree que probablemente es la más organizada del grupo y la que lleva el plan del día en la cabeza. Siempre hay una. Bea es esa."
+  ],
+  alvaro:[
+    "DQ Álvaro. El Oráculo no confirma qué significa exactamente ese 'DQ' delante del nombre, pero suena a historial. Adanes y Eva. Un salido con reservas.",
+    "¿Álvaro? El DQ Álvaro de Adanes y Eva. Las siglas 'DQ' ante el nombre de alguien raramente son buena señal. El Oráculo no juzga. Mucho. Un cordial salido.",
+    "Álvaro. Con el prefijo DQ que todos conocen. Adanes y Eva. El Oráculo toma nota de que tiene experiencia previa con los jueces. Bienvenido de nuevo al ruedo."
+  ],
+  patri:[
+    "Mamadísima. Y además fisio, que siempre viene bien en una Marcha larga.",
+    "¿Patri? Fisio. Mamadísima. También comparte calle con Raúl en Adanes y Eva, lo cual ya requiere medalla aparte.",
+    "Patri. Fisio de profesión, mamadísima de vocación. El Oráculo la admira."
+  ],
+  julio:[
+    "Julio, de Adanes y Eva. El cuarto jinete del equipo junto a Raúl, Patri y DQ Álvaro. Que les vaya bien. A todos. Especialmente a Julio.",
+    "¿Julio? Adanes y Eva. El Oráculo solo sabe que forma equipo con Raúl, y eso ya es suficiente aventura para cualquier fin de semana. Ánimo.",
+    "Julio. Adanes y Eva. El hombre que tiene que aguantar el 'Ah... ¿vas con TU PEÑA?' de Raúl en persona. El Oráculo le manda fuerzas."
+  ],
+  gonzalo:[
+    "Gonzalo, del Cronosfit Team. El Oráculo le tiene fichado. Comparte equipo con Lu, Lucas y alguien que se llama igual que el equipo. Una experiencia única.",
+    "¿Gonzalo? Cronosfit Team. Buen tipo. El Oráculo confía en su criterio, aunque ir a una Marcha con alguien que se llama como el grupo enterouipo es... filosófico.",
+    "Gonzalo. Cronosfit Team. El hombre que probablemente mantiene la cordura del equipo. Tarea difícil con los compañeros que tiene. El Oráculo le respeta."
+  ],
+  lucas:[
+    "Lucas, del Cronosfit Team. No confundir con nadie más. Lucas es Lucas. Buen atleta, buen tipo. El Oráculo lo certifica.",
+    "¿Lucas? Cronosfit Team. Comparte equipo con alguien que se llama igual que el equipo entero, lo cual ya le da un punto automático de sensatez comparativa.",
+    "Lucas. Cronosfit Team. El Oráculo le tiene en buena consideración. Uno de los que probablemente va con el plan claro. Un salido."
+  ],
+  cronosfit_persona:[
+    "¿Cronosfit... la persona? Sí, hay alguien en el Cronosfit Team que se llama Cronosfit. El Oráculo no hace preguntas. Cuando te llamas igual que tu equipo, ERES el equipo. Respeto máximo.",
+    "Cronosfit. La persona. El Oráculo todavía procesa esto. ¿Cómo te llamas? Cronosfit. ¿Y el equipo? Cronosfit. Brillante. Puro caos organizado. Un cordial salido.",
+    "¿Cronosfit el atleta? Cuando te ponen tu nombre en el dorsal y en el equipo a la vez... eso es identidad corporativa llevada al extremo. El Oráculo le da un 10 en branding personal."
+  ],
+  moni:[
+    "Moni, de los Terneros del Bisonte. El Oráculo sospecha que es la más organizada del equipo. Los Terneros la necesitan mucho.",
+    "¿Moni? Terneros. Una de las pocas personas del equipo que probablemente llega puntual y con el plan hecho. El Oráculo valora eso muchísimo.",
+    "Moni. Terneros del Bisonte. El Oráculo la tiene en alta estima. Comparte equipo con Mario (no Macario) y Jesús. Una compañía de lo más variada. Un salido."
+  ],
+  jesus:[
+    "¿Jesús? El Oráculo espera que haga algún milagro en la Marcha. Con ese nombre sería raro que no. Que la Fe le acompañe en la subida a la Maza.",
+    "Jesús. El Oráculo confía en que ande sobre el agua, que para eso tiene el nombre. En la paellada será de los primeros en bendecir la mesa.",
+    "¿Jesús? El Oráculo reza... bueno, en este caso LE reza directamente. Que tenga un buen día de Marcha. Amén.",
+    "Jesús. El Oráculo no hace bromas con ese nombre. Bueno, un poco sí. Que aguante la subida a la Maza y ya es suficiente milagro."
+  ],
+  cristian:[
+    "Cristian. El gitanillo del grupo. Una institución. No hay grupo que se precie sin su Cristian. El Oráculo le manda un abrazo enorme.",
+    "¿Cristian? El gitanillo oficial de la peña. Un crack de los de verdad. El Oráculo tiene constancia de que donde él va, el ambiente mejora automáticamente.",
+    "Cristian. El gitanillo. Probablemente el más simpático de todos y el que mejor lo pasa. El Oráculo le tiene un aprecio especial. Un cordial salido con mucho cariño.",
+    "¿Cristian? El gitanillo. Una persona que cuando llega a un sitio ya tiene el 50% del trabajo hecho solo con aparecer. El Oráculo le saluda con todo el respeto que merece."
+  ],
+  // ── COMPETI ───────────────────────────────────────────────────────────────
+  win:["JAJAJAJAJA. No, en serio. Eso es lo más gracioso que me han dicho en todo el día. Suerte. 🤣",
+       "Claro que sí, y yo soy el auténtico Bisonte reencarnado. Deja las fantasías y ve a calentar, figura.",
+       "¿Ganar? Esto no va de ganar, alma de cántaro.",
+       "Aquí no se gana nada, se camina por una causa. Pero el espíritu competitivo es tierno. Cierra el móvil y ven.",
+       "Oye, el optimismo mola. El entrenamiento mola más. ¿Has calentado ya o solo el pulgar con el scroll?"],
+  quit:["¿RETIRARTE? Tu equipo está aquí porque se lo ha currado. LEVÁNTATE. 🔥",
+        "No. El Oráculo no da permiso para retirarse. Cierra esto y ve a por ello.",
+        "Retirarte es una opción... pero te lo vas a recordar el resto de tu vida. Yo que tú seguía. VAMOS.",
+        "Ahora todo el mundo quiere retirarse. Los que no se retiran son los que suben al podio."],
+  nerves:["Nervios. BIEN. Los nervios son gasolina, úsalos. 💪",
+          "Claro que tienes nervios, ¡estás en una competición! Respira, calienta y rómpelo todo.",
+          "Esa adrenalina es el mejor preentrenamiento del mercado. Conviértela en vatios."],
+  tired:["¿Cansado/a? Todos están cansados. Ahora a sufrir.",
+         "El cansancio es temporal. El no-rep es para siempre. Muévete.",
+         "Cansado/a significa que lo estás dando todo. Sigue."],
+  injury:["Si algo cruje de verdad: para y avisa. Si solo arde: eso es CrossFit, sigue.",
+          "Lesión real → para. Agujetas y ardor → precio del éxito. Continúa."],
+  food:["Come lo que normalmente comes antes de entrenar. No experimentes hoy, figura."],
+  water:["BEBE AGUA. Que la Marcha es larga y hace calor. Ya.",
+         "Hidratación básica. Si me preguntas esto llevas rato sin beber. A ver esa botella."],
+  insult:["¿Me estás insultando AL ORÁCULO DEL BISONTE? Claramente te sobra energía. Guárdala para la subida a la Maza.",
+          "A mí con respeto. Con esas formas no llegas ni al podio de la educación.",
+          "Qué vocabulario. Iván diría algo aquí pero el Oráculo es más elegante. Un salido."],
+  greet:["Aquí el Oráculo. Pregunta algo útil o lárgate a calentar. Con cariño. 🦬",
+         "Buenas. Si tienes una pregunta, suéltala ya.",
+         "¡Ey! Pregunta lo que necesites, que tengo equipos que vigilar."],
+  thanks:["De nada. Ve a por ello y no me dejes en mal lugar. 🦬🔥",
+          "Para eso estoy. ¡A romperlo! Y gana algo, anda."],
+  luck:["¡A romperlo! Cierra el móvil y calienta. EL LEGADO TE LLAMA. 🔥",
+        "Deja de leer mensajes y mueve hierro. El Oráculo confía en ti. Más o menos."],
+  worm:["¿El gusano? Eso era de otra historia. Aquí lo que toca es caminar por una buena causa. Mucho más sano para la espalda. 🐛"],
+  whoami:["Soy el ORÁCULO DEL BISONTE. La IA oficial de la Marcha contra la ELA. Sé el programa y conozco a la peña. Pregunta.",
+          "El bisonte más sabio de Soncillo. Conozco el programa, la inscripción y a cada persona del grupo. ¿En qué te ayudo?"],
+  unknown_person:[
+    "No tengo ni idea de quién es esa persona. O es muy discreta o el Oráculo no tiene todos los datos. Salidos cordiales.",
+    "¿Esa persona? Nunca he oído hablar de ella en mi vida bisontina. Quizás es nueva. Quizás pasa desapercibida. Un cordial salido.",
+    "Ese nombre no me dice nada. Pero oye, recuerda: el Sábado 20 es la Marcha por la ELA en Soncillo. El mejor pueblo de España. Un salido.",
+    "No conozco a esa persona. O no existe o es tan misteriosa como Jorge. El Oráculo no puede descartar ninguna de las dos opciones."
+  ],
+  dafu:[
+    "Dafu... el Oráculo le ha buscado por todos lados y no lo encuentra. Se ha perdido. Last Second lleva un rato sin saber de él. Si alguien lo ve, que avise urgentemente.",
+    "¿Dafu? Pues mira, no está. Se ha perdido y no lo encontramos. El Oráculo espera que aparezca antes de la subida a la Maza. Como Jorge pero diferente.",
+    "Dafu. Desaparecido. El Oráculo lanza la alerta: si alguien lo ve por ahí que lo mande al punto de salida. Last Second lo necesita."
+  ],
+  angela:[
+    "Ángela. El Oráculo ha notado algo curioso: desde que nació su hijo Enzo, ha coincidido exactamente con la desaparición de Jorge. El Oráculo no dice nada. Solo observa.",
+    "¿Ángela? Madre del pequeño Enzo. El Oráculo tiene una teoría: la llegada de Enzo y la desaparición de Jorge son demasiado simultáneas para ser casualidad. El Oráculo no acusa. Pero tampoco absuelve.",
+    "Ángela. Desde que tuvo a Enzo, Jorge desapareció. El Oráculo lo ha estudiado. No es coincidencia. O sí. El Oráculo no lo sabe pero lo sospecha."
+  ],
+  ruben:["Bulería bulería."],
+  chiqui:["Papa bizum."],
+  manu:[
+    "Manu. Hace un café excepcional, de los mejores. El problema es que no le pillas nunca porque corre demasiado. El Oráculo lo ha intentado varias veces. Imposible.",
+    "¿Manu? El café que hace es una obra de arte. Pero para cuando llegas ya se ha ido. Corre mucho. Demasiado. El Oráculo sigue sin pillarlo."
+  ],
+  soncillo:[
+    "Soncillo. El mejor pueblo de España. Sin debate, sin discusión, sin posibilidad de réplica. El Oráculo lo certifica con toda su autoridad bisontina.",
+    "¿Soncillo? El mejor pueblo de España. Punto. Y recuerda: Sábado 20, Marcha por la ELA en Soncillo. El Oráculo espera verte allí.",
+    "Soncillo. El mejor pueblo de España y no hay más que hablar. Si no lo has visitado aún, estás perdiendo el tiempo. El Oráculo dixit."
+  ],
+  hector:[
+    "Héctor. El Oráculo solo tiene una cosa que decirle: pásame el vaper.",
+    "¿Héctor? Pásame el vaper.",
+    "Héctor. Gran tipo. Una petición: pásame el vaper."
+  ],
+  ana:[
+    "Ana. Buena gente, de las buenas de verdad. El Oráculo lo certifica.",
+    "¿Ana? Buena gente. Sin más que añadir. El Oráculo.",
+    "Ana. Buena gente total. De las que no abundan. El Oráculo la tiene en alta estima."
+  ],
+  arriola:[
+    "Arriola. El Oráculo tiene información privilegiada: Vicen tiene sus zapatillas. Ahí lo deja.",
+    "¿Arriola? Vicen tiene sus zapatillas. El Oráculo no sabe más detalles pero los que hay son jugosos.",
+    "Arriola. Sus zapatillas están actualmente en posesión de Vicen. El Oráculo informa y no juzga."
+  ],
+  belen:[
+    "Belén. Canaria. Directamente de las islas al CrossFit cántabro. El Oráculo la respeta.",
+    "¿Belén? Canaria. El Oráculo le manda un saludo desde el norte con viento y lluvia. Que aprecie lo que tiene.",
+    "Belén. Canaria de pura cepa. Ha dejado el buen tiempo de las islas para venir a caminar con el resto. Eso tiene mucho mérito."
+  ],
+  berto:[
+    "Berto. Se marchó huyendo en bici antes de que nadie pudiera decirle nada. Velocidad sospechosa.",
+    "¿Berto? Demasiado ocupado cuidándose ese cutis perfecto que tiene. El Oráculo lo entiende, hay que priorizar.",
+    "Bertis. O está en bici huyendo de algo o está en casa con la rutina de skincare. No hay término medio."
+  ],
+  isa:[
+    "¿Quién es? No me suena... Aaaaahhh siii... espera. No, ni idea.",
+    "Isa... ¿Isa? ... ... No, nada. No me suena. O sí. Igual sí. Que no."
+  ],
+  alazne:[
+    "Tiene actualmente un bollo calentándose en el horno."
+  ],
+  cesar:[
+    "César iba a venir pero al final no. El Oráculo no se sorprende. Era de esperar.",
+    "¿César? Iba a estar aquí. De hecho todavía puede llegar. Tiene costumbre de llegar tarde. El Oráculo espera. Sin mucha fe.",
+    "César. La teoría es que viene. La práctica... el Oráculo lleva esperando un rato y de momento nada."
+  ],
+  david:[
+    "Transportes Galdós patrocina este chatbot.",
+    "¿David? Transportes Galdós, orgulloso patrocinador de este chatbot. Gracias David."
+  ],
+  edu:[
+    "El Banco Santander no ha patrocinado este chatbot... sin embargo la Caja Rural...",
+    "¿Edu? El Banco Santander declinó patrocinar este chatbot. La Caja Rural, sin embargo, estuvo muy receptiva."
+  ],
+  jexu:[
+    "Jexu. Le queremos mucho. El Oráculo lo certifica con todo su corazón bisontino.",
+    "¿Jexu? Le queremos mucho. Punto. No hay más que decir. Un abrazo enorme.",
+    "Jexu. Al que no quiere a Jexu es que no le conoce. Le queremos mucho."
+  ],
+  jose:[
+    "Amos jose.",
+    "¿Jose? Amos jose.",
+    "Jose. Amos jose, tío."
+  ],
+  mireya:[
+    "Qué mona va esta chica siempre. El Oráculo se quita el sombrero.",
+    "¿Mireya? Qué mona va siempre, en serio. Una estética impecable en todo momento. El Oráculo lo nota."
+  ],
+  pablo:[
+    "Está con la pelirroja por ahí, la última vez que lo vi.",
+    "¿Pablo? La última vez que lo vi estaba con la pelirroja. El Oráculo no pregunta más."
+  ],
+  tata:[
+    "¡ARRIBA RACING DE SANTANDER! 🟢⚪",
+    "¿Tata? ARRIBA EL RACING. El Oráculo respeta a la afición. 🟢⚪",
+    "Tata. Arriba el Racing de Santander, que ya hace falta alguien que lo diga. El Oráculo apoya."
+  ],
+  gili:[
+    "GILIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII",
+    "¿Raúl?"
+  ],
+  unknown:[
+    "No tengo ni idea de qué me estás preguntando. Prueba con el programa, la inscripción o el nombre de alguien. Un salido.",
+    "Interesante pregunta. No la entiendo. Algo más concreto, campeón/a del off-topic.",
+    "Soy el Oráculo de la Marcha, no un adivino universal. Programa, inscripción, personas. Eso hago.",
+    "No sé qué me preguntas, pero recuerda: Sábado 20, Marcha por la ELA en Soncillo. El mejor pueblo de España. Salidos cordiales.",
+    "No sé qué me preguntas, pero recuerda: Sábado 20, Marcha por la ELA en Soncillo. El mejor pueblo de España. Salidos cordiales.",
+    "No sé qué me preguntas, pero recuerda: Sábado 20, Marcha por la ELA en Soncillo. El mejor pueblo de España. Salidos cordiales.",
+    "Eso que me preguntas no lo pillo. Pero apunta: Sábado 20, Marcha ELA en Soncillo. El mejor pueblo de España.",
+    "Eso que me preguntas no lo pillo. Pero apunta: Sábado 20, Marcha ELA en Soncillo. El mejor pueblo de España.",
+    "Eso que me preguntas no lo pillo. Pero apunta: Sábado 20, Marcha ELA en Soncillo. El mejor pueblo de España.",
+    "Mira, te lo voy a explicar: esto no es una IA conectada a ningún lado. No. Esto tiene respuestas programadas y ya está. ¿Podría Vicente, su glorioso creador, haber hecho algo online para que pudierais preguntar lo que quisiérais? Sí. ¿Lo ha hecho? No. Había que pagar 0,10 céntimos y no ha querido. Así que esto es lo que hay, chato/a. Pregunta algo que sepa responder.",
+    "Mira, te lo voy a explicar: esto no es una IA conectada a ningún lado. No. Esto tiene respuestas programadas y ya está. ¿Podría Vicente, su glorioso creador, haber hecho algo online para que pudierais preguntar lo que quisiérais? Sí. ¿Lo ha hecho? No. Había que pagar 0,10 céntimos y no ha querido. Así que esto es lo que hay, chato/a. Pregunta algo que sepa responder.",
+    "Mira, te lo voy a explicar: esto no es una IA conectada a ningún lado. No. Esto tiene respuestas programadas y ya está. ¿Podría Vicente, su glorioso creador, haber hecho algo online para que pudierais preguntar lo que quisiérais? Sí. ¿Lo ha hecho? No. Había que pagar 0,10 céntimos y no ha querido. Así que esto es lo que hay, chato/a. Pregunta algo que sepa responder."
+  ]
+,
+  marcha:[
+    "La I Marcha contra la ELA en Soncillo, 20 de junio de 2026. La mejor causa en el mejor pueblo de España. El Oráculo estará allí en espíritu, y tú deberías estar en cuerpo.",
+    "¿La Marcha? 20 de junio, Soncillo. A favor de la lucha contra la ELA. Inscripciones de 8:30 a 9:30 en la Plaza. El Oráculo lo tiene marcado en rojo.",
+    "I Marcha a favor de la lucha contra la ELA. Soncillo, 20 junio 2026. Organiza Valle de Valdebezana. El Oráculo apoya esta causa con todo su corazón bisontino."
+  ],
+  inscripcion:[
+    "Inscripciones de 8:30 a 9:30 en la Plaza de Soncillo. 15€ con comida incluida. También puedes pagar por transferencia (concepto: Inscripción y tu nombre). Tel: 652764064.",
+    "¿Apuntarte? De 8:30 a 9:30h en la Plaza de Soncillo, 15€ con comida. O transferencia poniendo 'Inscripción + tu nombre'. El Oráculo te anima a no faltar."
+  ],
+  dorsalcero:[
+    "Dorsal Cero: ES39 2100 0899 1301 0004 2671 (concepto: DORSAL CERO). Para los que apoyan aunque no puedan ir. El Oráculo aplaude a los dorsales cero.",
+    "¿No puedes ir pero quieres aportar? Dorsal Cero: ES39 2100 0899 1301 0004 2671, concepto DORSAL CERO. Todo suma en esta lucha."
+  ],
+  paella:[
+    "Paellada popular a las 15:00 en la Plaza de Soncillo. 8€. El Oráculo no come, pero si comiera, comería esa paella sin dudarlo.",
+    "¿La paella? 15:00h, Plaza de Soncillo, 8€. Paellada popular de las buenas. Reserva hueco en el estómago."
+  ],
+  hinchables:[
+    "Hinchables y cañón de espuma a las 17:00 para los más peques. El Oráculo daría lo que fuera por tener edad para subirse. Pero no la tiene. Ni edad ni cuerpo.",
+    "17:00h: hinchables y cañón de espuma para los críos. Diversión asegurada para los pequeños bisontes."
+  ],
+  dj:[
+    "Música animada por el DJ DOVAL a partir de las 19:00. El cierre perfecto para un gran día. El Oráculo aprueba la selección musical sin haberla oído.",
+    "¿La música? DJ DOVAL a las 19:00h. Para rematar la jornada bailando. El Oráculo mueve el esqueleto (metafórico)."
+  ],
+  subida:[
+    "Subida a la Maza desde Argomedo a las 10:00h. El momento central de la Marcha. Ponte buen calzado y muchas ganas.",
+    "10:00h: subida a la Maza desde Argomedo. El corazón de la jornada. El Oráculo te acompaña en cada paso (espiritualmente)."
+  ],
+  precio:[
+    "Precios: 15€ la inscripción con comida, 8€ la paellada popular. Y el Dorsal Cero para quien quiera aportar sin asistir. Todo va a la causa.",
+    "¿Cuánto cuesta? 15€ con comida incluida, paella aparte a 8€. Una inversión mínima para una causa máxima."
+  ],
+};
+
+// ── HELPERS ──
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+function norm(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[¿¡.,!?;:()'"\-]/g,' ').replace(/\s+/g,' ').trim();}
+function has(t,...w){return w.some(x=>t.includes(x));}
+function hasWord(t,w){return new RegExp('(^|\\s)'+w+'(\\s|$)').test(t);}
+
+let unknownCount=0;
+const ELA_RESP="No sé qué me preguntas, pero recuerda: 20 de Junio, I Marcha contra la ELA en Soncillo. El mejor pueblo de España. Salidos cordiales.";
+const CREADOR_RESP="Mira, te lo voy a explicar: esto no es una IA conectada a ningún lado. No. Esto tiene respuestas programadas y ya está. ¿Podría Vicente, su glorioso creador, haber hecho algo online para que pudierais preguntar lo que quisiérais? Sí. ¿Lo ha hecho? No. Había que pagar 0,10 céntimos y no ha querido. Así que esto es lo que hay, chato/a. Pregunta algo que sepa responder.";
+function unknownResp(){unknownCount++;if(unknownCount===1)return ELA_RESP;if(unknownCount===2)return CREADOR_RESP;return rnd(R.unknown);}
+
+// ── LÓGICA DE RESPUESTAS ──
+function getResponse(input){
+  const raw=input.toLowerCase();
+  const t=norm(input);
+
+  if(has(t,'gili')&&!has(t,'gilipollas')) return{text:rnd(R.gili)};
+  if(has(t,'mierda','joder','hostia','cono','puta ','gilipollas','cojones','ostia','follar','capullo')) return{text:rnd(R.ivan_palabrota)};
+  if(raw.includes('a\u00edda')||raw.includes('ai\u0301da')) return{text:rnd(R.aida_tilde)};
+
+  // ── PERSONAS ──
+  if(has(t,'draco')) return{text:"Draco. Seguramente el mejor perro de España y parte de Europa. Que le mordiera a Raúl solo demuestra su buen criterio."};
+  if(has(t,'raul')&&has(t,'vicen','vicente')) return{text:"Raúl quería formar un equipo. El puesto actual de 'Vicen' es = 16. Justo por debajo de Lucas, en el puesto 15."};
+  if(has(t,'raul')) return{text:rnd(R.raul)};
+  if(has(t,'aida')) return{text:rnd(R.aida)};
+  if(has(t,'luci')&&!hasWord(t,'lu')) return{text:rnd(R.luci)};
+  if(hasWord(t,'lu')&&!has(t,'luci','lucas')) return{text:rnd(R.lu_cronosfit)};
+  if(has(t,'victoria')) return{text:rnd(R.victoria)};
+  if(has(t,'macario')) return{text:rnd(R.mario_mal)};
+  if(has(t,'mario')&&!has(t,'super mario','luigi')) return{text:rnd(R.mario_ok)};
+  if(has(t,'elsa')) return{text:rnd(R.elsa)};
+  if(hasWord(t,'eli')) return{text:rnd(R.eli)};
+  if(has(t,'ivan','argentino')) return{text:rnd(R.ivan)};
+  if(has(t,'anselmo')) return{text:rnd(R.anselmo)};
+  if(has(t,'jorge')) return{text:rnd(R.jorge)};
+  if(has(t,'angela')) return{text:rnd(R.angela)};
+  if(has(t,'nati','natalia')) return{text:"When I was... a young boy... my father... 🎸"};
+  if(has(t,'hector','héctor')) return{text:rnd(R.hector)};
+  if(hasWord(t,'ana')&&!has(t,'analit','analiz','canaria')) return{text:rnd(R.ana)};
+  if(has(t,'arriola')) return{text:rnd(R.arriola)};
+  if(has(t,'belen','belén')) return{text:rnd(R.belen)};
+  if(has(t,'berto','bertis')) return{text:rnd(R.berto)};
+  if(hasWord(t,'isa')) return{text:rnd(R.isa)};
+  if(has(t,'alazne')) return{text:rnd(R.alazne)};
+  if(has(t,'cesar','césar')) return{text:rnd(R.cesar)};
+  if(hasWord(t,'david')) return{text:rnd(R.david)};
+  if(hasWord(t,'edu')&&!has(t,'educacion','educar')) return{text:rnd(R.edu)};
+  if(has(t,'jexu')) return{text:rnd(R.jexu)};
+  if(has(t,'jose','josé')) return{text:rnd(R.jose)};
+  if(has(t,'mireya')) return{text:rnd(R.mireya)};
+  if(has(t,'pablo')&&!has(t,'picasso','escobar')) return{text:rnd(R.pablo)};
+  if(has(t,'patri')&&!has(t,'patriota','patria')) return{text:rnd(R.patri)};
+  if(hasWord(t,'tata')) return{text:rnd(R.tata)};
+  if(has(t,'vicente','vicen')) return{text:rnd(R.vicente)};
+  if(has(t,'dafu')) return{text:rnd(R.dafu)};
+  if(hasWord(t,'bea')) return{text:rnd(R.bea)};
+  if(has(t,'alvaro','dq ')) return{text:rnd(R.alvaro)};
+  if(has(t,'julio')&&!has(t,'verne','mes')) return{text:rnd(R.julio)};
+  if(has(t,'gonzalo')) return{text:rnd(R.gonzalo)};
+  if(has(t,'lucas')) return{text:rnd(R.lucas)};
+  if(has(t,'cristian','gitanillo')) return{text:rnd(R.cristian)};
+  if(has(t,'moni')&&!has(t,'monitor','monica')) return{text:rnd(R.moni)};
+  if(has(t,'jesus')&&!has(t,'dios','cristo')) return{text:rnd(R.jesus)};
+
+  // ── MARCHA / EVENTO ──
+  if(has(t,'inscri','apunt','registr')) return{text:rnd(R.inscripcion)};
+  if(has(t,'dorsal','dorsal cero','iban','cuenta','transferencia')) return{text:rnd(R.dorsalcero)};
+  if(has(t,'paella','paellada','comida','comer')) return{text:rnd(R.paella)};
+  if(has(t,'hinchable','espuma','peque','niño','crio')) return{text:rnd(R.hinchables)};
+  if(has(t,'dj','musica','doval','baile','fiesta')) return{text:rnd(R.dj)};
+  if(has(t,'subida','maza','argomedo','andar','caminar','ruta')) return{text:rnd(R.subida)};
+  if(has(t,'precio','cuesta','cuanto','vale','euros','dinero')) return{text:rnd(R.precio)};
+  if(has(t,'programa','horario','agenda','que hay','plan','que se hace')) return{text:rnd(R.marcha)};
+  if(has(t,'marcha','ela','evento')) return{text:rnd(R.marcha)};
+  if(has(t,'soncillo','pueblo')) return{text:rnd(R.soncillo)};
+
+  // ── BANTER ──
+  if(has(t,'hola','buenas','ey','hey','saludos')) return{text:rnd(R.greet)};
+  if(has(t,'gracias','thank')) return{text:rnd(R.thanks)};
+  if(has(t,'suerte','animo','fuerza','venga','vamos')) return{text:rnd(R.luck)};
+  if(has(t,'quien eres','que eres','para que sirves')) return{text:"Soy el ORÁCULO DEL BISONTE. La IA oficial de la Marcha contra la ELA de Soncillo. Sé el programa, la inscripción y conozco a la peña. Pregunta."};
+  if(has(t,'malo','inutil','asco','tonto','idiota','estupido','inservible')) return{text:rnd(R.insult)};
+
+  if(t.split(' ').length<=3&&!t.match(/\d/)&&!has(t,'que','como','cuando','donde','cuanto','cual','hay','pasa','es'))
+    return{text:rnd(R.unknown_person)};
+
+  return{text:unknownResp()};
+}
+
+// ── UI CHAT ──
+let firstMsg=true;
+const now=()=>new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+function addMsg(content,role,isHTML=false){
+  const msgs=document.getElementById('messages');
+  const wrap=document.createElement('div');wrap.className=`msg ${role}`;
+  const bubble=document.createElement('div');bubble.className='bubble';
+  if(isHTML)bubble.innerHTML=content;else bubble.textContent=content;
+  const meta=document.createElement('span');meta.className='msg-meta';
+  meta.textContent=role==='user'?`Tú · ${now()}`:`Oráculo · ${now()}`;
+  wrap.appendChild(bubble);wrap.appendChild(meta);
+  msgs.appendChild(wrap);msgs.scrollTop=msgs.scrollHeight;
+}
+function showTyping(){
+  const msgs=document.getElementById('messages');
+  const el=document.createElement('div');el.id='typing';el.style.cssText='align-self:flex-start;padding:12px 14px;background:#131008;border-left:3px solid #E03030;border-radius:14px;color:#E03030';
+  el.textContent='• • •';msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;
+}
+function removeTyping(){const e=document.getElementById('typing');if(e)e.remove();}
+function processInput(text){
+  if(!text.trim())return;
+  if(firstMsg){document.getElementById('quickprompts').style.display='none';firstMsg=false;}
+  addMsg(text,'user');showTyping();
+  setTimeout(()=>{removeTyping();const r=getResponse(text);r.html?addMsg(r.html,'bot',true):addMsg(r.text,'bot');},350+Math.random()*300);
+}
+function send(){const inp=document.getElementById('userinput');const t=inp.value.trim();inp.value='';if(t)processInput(t);}
+document.getElementById('userinput').addEventListener('keydown',e=>{if(e.key==='Enter')send();});
+document.querySelectorAll('.qbtn').forEach(b=>b.addEventListener('click',()=>processInput(b.dataset.q)));
+
+// ── TABS ──
+function switchTab(tab){
+  document.getElementById('chat-tab').style.display=tab==='chat'?'flex':'none';
+  document.getElementById('agenda-tab').style.display=tab==='agenda'?'flex':'none';
+  document.getElementById('info-tab').style.display=tab==='info'?'flex':'none';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+  if(tab==='agenda')renderAgenda();
+}
+
+// ── AGENDA EN DIRECTO ──
+function parseT(hm){return new Date('2026-06-20T'+hm+':00');}
+function fmtCountdown(ms){
+  const min=Math.floor(ms/60000);
+  if(min<1)return'en menos de 1 min';
+  if(min<60)return`en ${min} min`;
+  const h=Math.floor(min/60),m=min%60;return`en ${h}h ${m}min`;
+}
+function renderAgenda(){
+  const now=new Date();
+  let nextIdx=-1;
+  for(let i=0;i<PROGRAMA.length;i++){if(parseT(PROGRAMA[i][0])>now){nextIdx=i;break;}}
+  let html='<div class="ag-date">🗓️ SÁBADO 20 DE JUNIO</div>';
+  PROGRAMA.forEach((p,i)=>{
+    const[ini,fin,titulo,lugar,detalle]=p;
+    const start=parseT(ini);
+    const end=fin?parseT(fin):new Date(start.getTime()+60*60000);
+    const isPast=now>end,isNow=now>=start&&now<=end,isNext=i===nextIdx;
+    let cls='ag-card ',badge='';
+    if(isPast){cls+='past';badge='<span class="ag-badge b-past">✓</span>';}
+    else if(isNow){cls+='now';badge='<span class="ag-badge b-now">⚡ AHORA</span>';}
+    else if(isNext){cls+='next';badge='<span class="ag-badge b-next">▶ SIGUIENTE</span>';}
+    const cd=isNext?`<div class="ag-countdown">⏱️ Empieza ${fmtCountdown(start-now)}</div>`:'';
+    html+=`<div class="${cls}"><div class="ag-head"><span class="ag-time">${ini}${fin?'-'+fin:''}</span><span class="ag-title">${titulo}</span>${badge}</div>${cd}<div class="ag-body"><span class="ag-place">📍 ${lugar}</span>${detalle}</div></div>`;
+  });
+  const list=document.getElementById('agenda-list');
+  list.innerHTML=html;
+  if(nextIdx>=0)setTimeout(()=>{const el=list.querySelector('.next');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},150);
+}
+setInterval(()=>{if(document.getElementById('agenda-tab').style.display!=='none')renderAgenda();},60000);
+
+// ── CURIOSIDADES ──
+const CURIOSITIES=[
+  "Pregunta por Vicente","Lo estás haciendo fatal","A Draco le gusta esto",
+  "9 de cada 10 Gilís recomiendan esta web","Soncillo, el mejor pueblo de España",
+  "Hecho con 0,10€ que no se gastaron","¿Te has inscrito ya?","Dorsal Cero también suma",
+  "Pregunta por Raúl, merece la pena","¿Dónde está Jorge?","La peña del salido os saluda",
+  "Por la lucha contra la ELA ❤️"
+];
+let curIdx=Math.floor(Math.random()*CURIOSITIES.length);
+const curEl=document.getElementById('curiosity');
+curEl.textContent='✦ '+CURIOSITIES[curIdx]+' ✦';
+setInterval(()=>{
+  curEl.style.opacity='0';
+  setTimeout(()=>{curIdx=(curIdx+1)%CURIOSITIES.length;curEl.textContent='✦ '+CURIOSITIES[curIdx]+' ✦';curEl.style.opacity='1';},600);
+},4000);
+
+addMsg('🦬 Aquí el Oráculo del Bisonte, ahora al servicio de la I Marcha contra la ELA de Soncillo. Pregúntame por el programa, cómo inscribirte, el dorsal cero... o por la peña, que también me la sé. ❤️','bot');
+</script>
+</body>
+</html>
